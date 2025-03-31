@@ -1,6 +1,7 @@
 package com.rc.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 //import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -28,6 +29,7 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
     @Autowired
     private AuthenticationManager authenticationManager ;
 
+    @Qualifier("userServiceDetailsServiceImpl")
     @Autowired
     private UserDetailsService userDetailsService ;
 //
@@ -42,9 +44,17 @@ public class AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
                 .withClient("coin-api")
                 .secret(passwordEncoder.encode("coin-secret"))
                 .scopes("all")
-                .authorizedGrantTypes("password","refresh")
-                .accessTokenValiditySeconds(24 * 7200)
-                .refreshTokenValiditySeconds(7 *  24 * 7200) ;
+                .authorizedGrantTypes("password","refresh_token")
+                .accessTokenValiditySeconds(7 * 24 * 3600) // token有效期7天
+                .refreshTokenValiditySeconds(30 * 24 * 3600) // refresh token有效期30天
+                // 服务器内部获取token的方式。在我们没有一个用户请求的上下文的时候，我们需要应用自己去获取一个临时的token
+                .and()
+                .withClient("inside-app")
+                .secret(passwordEncoder.encode("inside-secret"))
+                .authorizedGrantTypes("client_credentials")
+                .scopes("all")
+                .accessTokenValiditySeconds(7 * 24 * 3600) // token有效期7天
+        ;
     }
 
     /**

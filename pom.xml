@@ -53,6 +53,8 @@
         <joda-time.version>2.10</joda-time.version>
         <okhttp.version>3.11.0</okhttp.version>
         <okio.version>1.15.0</okio.version>
+        <hutool.version>4.1.2</hutool.version>
+        <swagger2.version>2.9.2</swagger2.version>
     </properties>
 
     <dependencies>
@@ -213,6 +215,12 @@
                 <artifactId>aliyun-java-sdk-dm</artifactId>
                 <version>${aliyun-java-sdk-dm.version}</version>
             </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

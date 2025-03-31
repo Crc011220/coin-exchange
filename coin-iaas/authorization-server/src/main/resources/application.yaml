@@ -11,3 +11,9 @@ spring:
 #    host: redis-server
 #    port: 6380
 #    password: crc20011220
+
+  datasource:
+    url: jdbc:mysql://mysql-server:3307/coin-exchange?useSSL=false&serverTimezone=GMT%2B11
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: crc20011220
