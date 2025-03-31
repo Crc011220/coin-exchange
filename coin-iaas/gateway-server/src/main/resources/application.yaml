@@ -1,0 +1,45 @@
+server:
+  port: 80
+spring:
+  application:
+    name: gateway-server
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos-server:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: admin-service_router
+          uri: lb://admin-service
+          predicates:
+            - Path=/admin/**
+        - id: test_router
+          uri: http://www.google.com
+          predicates:
+            - Path=/test
+    sentinel:
+      transport:
+        dashboard: sentinel-server:8858
+      datasource:
+#        ds1.file:
+#          file: classpath:gw-flow.json
+#          ruleType: gw_flow
+        ds1.nacos:
+          serverAddr: nacos-server:8848
+          dataId: gw-flow
+          ruleType: gw_flow
+#        ds2.file:
+#          file: classpath:api-group.json
+#          ruleType: gw_api_group
+        ds2.nacos:
+          serverAddr: nacos-server:8848
+          dataId: api-group
+          ruleType: gw_api_group
+  redis:
+    host: redis-server
+    port: 6380
+    password:
