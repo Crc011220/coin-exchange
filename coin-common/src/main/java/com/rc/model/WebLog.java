@@ -1,5 +1,6 @@
 package com.rc.model;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -7,6 +8,7 @@ import lombok.EqualsAndHashCode;
  * web 操作日志记录
  */
 @Data
+@Builder
 @EqualsAndHashCode(callSuper = false)
 public class WebLog {
     /**

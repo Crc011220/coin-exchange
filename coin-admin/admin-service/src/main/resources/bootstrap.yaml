@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: admin-service
+  cloud:
+    nacos:
+      server-addr: nacos-server:8848
+      config:
+        file-extension: yaml # 配置文件的扩展名
+  profiles:
+    active: dev

@@ -21,7 +21,7 @@ public class JacksonConfig {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addSerializer(Long.class, ToStringSerializer.instance);
         objectMapper.registerModule(simpleModule);
-        objectMapper.setTimeZone(TimeZone.getTimeZone("Australia/melbourne"));
+        objectMapper.setTimeZone(TimeZone.getTimeZone("Australia/Melbourne"));
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
 
