@@ -22,6 +22,7 @@ public class AutoFiledValueHandler implements MetaObjectHandler {
     @Override
     public void insertFill(MetaObject metaObject) {
         Long userId = getUserId();
+
         /**
          * 3 种情况不填充
          * 1 值为null
@@ -37,7 +38,6 @@ public class AutoFiledValueHandler implements MetaObjectHandler {
 
     /**
      * 修改时填入值
-     * @param metaObject
      */
     @Override
     public void updateFill(MetaObject metaObject) {
@@ -49,10 +49,10 @@ public class AutoFiledValueHandler implements MetaObjectHandler {
 
     /**
      * 获取安全上下文里的用户对象 --- 主要是在线程里面获取改值
-     * @return
+     * @return userId
      */
     private Long getUserId() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // 获取安全上下文里的用户对象
         Long userId = null;
         if (authentication != null) {
             String principal = authentication.getPrincipal().toString();

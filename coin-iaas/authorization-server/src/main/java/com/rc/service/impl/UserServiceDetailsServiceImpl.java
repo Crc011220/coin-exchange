@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static com.rc.constant.LoginConstant.*;
 
+// 查询权限，用户名 放入jwt
 @Service
 public class UserServiceDetailsServiceImpl implements UserDetailsService {
 
