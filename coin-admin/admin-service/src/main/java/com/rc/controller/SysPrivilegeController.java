@@ -69,10 +69,6 @@ public class SysPrivilegeController {
     public R add(@RequestBody @Validated SysPrivilege sysPrivilege){
         // 新增时，我们需要给我们的新增对象填充一些属性
         // AutoFiledValueHandler类进行了自动填充
-//        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-//        sysPrivilege.setCreateBy(Long.valueOf(userIdStr));
-//        sysPrivilege.setCreated(new Date());
-//        sysPrivilege.setLastUpdateTime(new Date());
         boolean save = sysPrivilegeService.save(sysPrivilege);
         if(save){
             return R.ok("新增成功") ;
@@ -90,9 +86,6 @@ public class SysPrivilegeController {
     public R update(@RequestBody @Validated SysPrivilege sysPrivilege){
         // 新增时，我们需要给我们的新增对象填充一些属性
         // AutoFiledValueHandler类进行了自动填充
-//        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-//        sysPrivilege.setModifyBy(Long.valueOf(userIdStr));
-//        sysPrivilege.setLastUpdateTime(new Date());
 
         boolean save = sysPrivilegeService.updateById(sysPrivilege);
         if(save){

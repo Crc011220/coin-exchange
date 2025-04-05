@@ -45,6 +45,7 @@ public class SysRolePrivilegeServiceImpl extends ServiceImpl<SysRolePrivilegeMap
         if (CollectionUtils.isEmpty(list)) {
             return Collections.emptyList();
         }
+        // 找到所有的一级菜单
         List<SysMenu> rootMenus = list.stream()
                 .filter(sysMenu -> sysMenu.getParentId() == null)
                 .collect(Collectors.toList());
@@ -90,7 +91,7 @@ public class SysRolePrivilegeServiceImpl extends ServiceImpl<SysRolePrivilegeMap
     @Override
     public boolean grantPrivileges(RolePrivilegesParam rolePrivilegesParam) {
         Long roleId = rolePrivilegesParam.getRoleId(); // 角色Id
-        //1 先删除之前该角色的权限
+        // 1 先删除之前该角色的权限
         sysRolePrivilegeService.remove(new LambdaQueryWrapper<SysRolePrivilege>().eq(SysRolePrivilege::getRoleId, roleId));
         // 移除之前的值成功
         List<Long> privilegeIds = rolePrivilegesParam.getPrivilegeIds();

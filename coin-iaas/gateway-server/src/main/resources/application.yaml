@@ -19,6 +19,12 @@ spring:
             - Path=/admin/**
           filters:
             - StripPrefix=1
+        - id: member-service_router
+          uri: lb://member-service
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
 #        - id: test_router
 #          uri: http://www.google.com
 #          predicates:

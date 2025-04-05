@@ -92,11 +92,14 @@ public class WebLogAspect {
     private Object getMethodParameter(Method method, Object[] args) {
         LocalVariableTableParameterNameDiscoverer localVariableTableParameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
         String[] parameterNames = localVariableTableParameterNameDiscoverer.getParameterNames(method);
-        HashMap<String, Object> methodParameters = new HashMap<>();
-        Parameter[] parameters = method.getParameters();
+        Map<String, Object> methodParameters = new HashMap<>();
         if (args != null) {
             for (int i = 0; i < parameterNames.length; i++) {
-                methodParameters.put(parameterNames[i], args[i] == null ? "" : JSON.toJSONString(args[i]));
+                if(parameterNames[i].equals("password") || parameterNames[i].equals("file")){
+                    methodParameters.put(parameterNames[i], "受限的类型");
+                } else {
+                    methodParameters.put(parameterNames[i], args[i]);
+                }
             }
         }
         return methodParameters;

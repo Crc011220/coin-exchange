@@ -36,6 +36,7 @@ public class SysRoleController {
             @ApiImplicitParam(name = "size", value = "每页显示的大小"),
             @ApiImplicitParam(name = "name", value = "角色名称"),
     })
+    //基于 name 参数的模糊查询条件
     public R<Page<SysRole>> findByPage(@ApiIgnore Page<SysRole> page, String name) {
         page.addOrder(OrderItem.desc("last_update_time"));
         return R.ok(sysRoleService.findByPage(page, name));
@@ -60,7 +61,7 @@ public class SysRoleController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "ids", value = "要删除角色的id的集合")
     })
-    public R delete(@RequestBody String[] ids) {
+    public R delete(@RequestBody String[] ids) { //可以批量删除 用数组传过来
         if (ids == null || ids.length == 0) {
             return R.fail("要删除的数据不能为null");
         }

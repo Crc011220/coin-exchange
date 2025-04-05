@@ -130,7 +130,7 @@ public class SysMenu {
      */
     @TableField(exist = false)
     @ApiModelProperty("该菜单的子菜单")
-    private List<SysMenu>  childs = Collections.emptyList();
+    private List<SysMenu> childs = Collections.emptyList();
 
 
     /**

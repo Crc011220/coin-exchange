@@ -41,14 +41,14 @@ public class SysUserController {
 
 
     @PostMapping
-    @ApiOperation(value = "新增员工")
+    @ApiOperation(value = "新增员工用户")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "sysUser"  ,value = "sysUser 的json数据")
+            @ApiImplicitParam(name = "sysUser" ,value = "sysUser 的json数据")
     })
     @PreAuthorize("hasAuthority('sys_user_create')")
-    public R addUser(@RequestBody  SysUser sysUser){
+    public R addUser(@RequestBody SysUser sysUser){
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        sysUser.setCreateBy(userId);
+        sysUser.setCreateBy(userId); // 设置创建人
         boolean isOk = sysUserService.addUser(sysUser) ;
         if(isOk){
             return R.ok() ;
@@ -56,12 +56,24 @@ public class SysUserController {
         return R.fail("新增失败") ;
     }
 
-
+    @PatchMapping
+    @ApiOperation(value = "修改员工用户")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "sysUser" ,value = "sysUser 的json数据")
+    })
+    @PreAuthorize("hasAuthority('sys_user_update')")
+    public R updateUser(@RequestBody SysUser sysUser){
+        boolean isOk = sysUserService.updateUser(sysUser) ;
+        if(isOk){
+            return R.ok() ;
+        }
+        return R.fail("修改失败") ;
+    }
 
     @PostMapping("/delete")
-    @ApiOperation(value = "删除用户")
+    @ApiOperation(value = "删除员工用户")
     @PreAuthorize("hasAuthority('sys_user_delete')")
-    public R deleteUser( @RequestBody  Long ids[] ){
+    public R deleteUser( @RequestBody Long[] ids){
         boolean b = sysUserService.removeByIds(Arrays.asList(ids));
         if(b){
             return R.ok() ;

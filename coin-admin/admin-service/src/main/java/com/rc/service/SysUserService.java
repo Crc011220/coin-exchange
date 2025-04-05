@@ -11,4 +11,6 @@ public interface SysUserService extends IService<SysUser>{
     // 新增员工用户
     boolean addUser(SysUser sysUser);
 
+    // 修改员工用户
+    boolean updateUser(SysUser sysUser);
 }
