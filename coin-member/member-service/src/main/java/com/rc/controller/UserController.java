@@ -6,7 +6,10 @@ import com.rc.domain.User;
 import com.rc.domain.UserAuthAuditRecord;
 import com.rc.domain.UserAuthInfo;
 import com.rc.model.R;
+import com.rc.service.UserAuthAuditRecordService;
+import com.rc.service.UserAuthInfoService;
 import com.rc.service.UserService;
+import com.rc.vo.UserAuthInfoVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -28,6 +31,12 @@ public class UserController {
 
     @Autowired
     private UserService userService ;
+
+    @Autowired
+    private UserAuthInfoService userAuthInfoService;
+
+    @Autowired
+    private UserAuthAuditRecordService userAuthAuditRecordService;
 
     @GetMapping
     @ApiOperation(value = "查询会员的列表")
@@ -138,6 +147,50 @@ public class UserController {
         return R.ok(userPage);
     }
 
+    @GetMapping("/auth/info")
+    @ApiOperation(value = "查询用户的认证详情")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户的Id")
+
+    })
+    public R<UserAuthInfoVo> getUserAuthInfo(Long id) {
+        User user = userService.getById(id);
+        List<UserAuthAuditRecord> userAuthAuditRecordList = null;
+        List<UserAuthInfo> userAuthInfoList = null;
+
+        if (user != null) {
+            Integer reviewsStatus = user.getReviewsStatus();
+            if (reviewsStatus == null || reviewsStatus == 0) { // 待审核
+                userAuthAuditRecordList = Collections.emptyList(); // 用户没有审核记录
+                userAuthInfoList = userAuthInfoService.getUserAuthInfoByUserId(id);
+            }else {
+                // 查询用户的审核记录列表
+                userAuthAuditRecordList = userAuthAuditRecordService.getUserAuthAuditRecordList(id);
+                // 查询用户的认证详情列表-> 用户的身份信息
+                UserAuthAuditRecord userAuthAuditRecord = userAuthAuditRecordList.get(0);// 之前我们查询时,是按照认证的日志排序的,第0 个值,就是最近被认证的一个值
+                Long authCode = userAuthAuditRecord.getAuthCode(); // 认证的唯一标识
+                userAuthInfoList = userAuthInfoService.getUserAuthInfoByCode(authCode);
+            }
+        }
+        return R.ok(new UserAuthInfoVo(user, userAuthInfoList, userAuthAuditRecordList));
+    }
+
+
+    @PostMapping("/auths/status")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户的ID"),
+            @ApiImplicitParam(name = "authStatus", value = "用户的审核状态"),
+            @ApiImplicitParam(name = "authCode", value = "一组图片的唯一标识"),
+            @ApiImplicitParam(name = "remark", value = "审核拒绝的原因"),
+    })
+    public R updateUserAuthStatus(@RequestParam(required = true) Long id, @RequestParam(required = true) Byte authStatus, @RequestParam(required = true) Long authCode, String remark) {
+        // 审核: 1 修改user 里面的reviewStatus
+        // 2 在authAuditRecord 里面添加一条记录
+
+        userService.updateUserAuthStatus(id, authStatus, authCode, remark);
+
+        return R.ok();
+    }
 
 
 
