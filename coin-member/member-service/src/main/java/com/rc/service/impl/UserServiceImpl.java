@@ -4,18 +4,26 @@ import cn.hutool.core.lang.Assert;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.config.IdAutoConfiguration;
+import com.rc.domain.Sms;
 import com.rc.domain.UserAuthAuditRecord;
 import com.rc.geetest.GeetestLib;
+import com.rc.model.UnsetPasswordParam;
+import com.rc.model.UpdateLoginParam;
+import com.rc.model.UpdatePhoneParam;
 import com.rc.model.UserAuthForm;
+import com.rc.service.SmsService;
 import com.rc.service.UserAuthAuditRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +34,8 @@ import com.rc.service.UserService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import static com.rc.constant.Constants.HIDDEN_FIELD;
+import static com.rc.utils.MobileUtils.convertToE164Format;
 
 @Service
 @Slf4j
@@ -40,6 +49,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate ;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate ;
+
+    @Autowired
+    private SmsService smsService;
 
     @Override
     public Page<User> findByPage(Page<User> page, String mobile, Long userId, String userName, String realName,
@@ -154,4 +169,126 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setSeniorAuthDesc(seniorAuthDesc);
         return user;
     }
+
+
+    @Override
+    public boolean updatePhone(Long userId, UpdatePhoneParam updatePhoneParam) {
+        User user = getById(userId);
+
+        String oldMobile = user.getMobile(); // 旧的手机号 --- > 验证旧手机的验证码
+        String oldMobileCode = stringRedisTemplate.opsForValue().get("SMS:VERIFY_OLD_PHONE:" + oldMobile);
+        if(!updatePhoneParam.getOldValidateCode().equals(oldMobileCode)){
+            throw new IllegalArgumentException("旧手机的验证码错误") ;
+        }
+
+        String newPhoneCode = stringRedisTemplate.opsForValue().get("SMS:CHANGE_PHONE_VERIFY:" + updatePhoneParam.getNewMobilePhone());
+        if(!updatePhoneParam.getValidateCode().equals(newPhoneCode)){
+            throw new IllegalArgumentException("新手机的验证码错误") ;
+        }
+
+        user.setMobile(updatePhoneParam.getNewMobilePhone());
+        return updateById(user);
+    }
+
+    @Override
+    public boolean checkNewPhone(String mobile, String countryCode) {
+        //1 新的手机号,没有旧的用户使用
+        int count = count(new LambdaQueryWrapper<User>().eq(User::getMobile, mobile).eq(User::getCountryCode,countryCode));
+        if(count>0){
+            throw new IllegalArgumentException("该手机号已经被占用") ;
+        }
+        // 2 向新的手机发送短信
+        Sms sms = new Sms();
+        sms.setMobile(mobile);
+        sms.setCountryCode(countryCode);
+        sms.setTemplateCode("CHANGE_PHONE_VERIFY"); // 模板代码  -- > 校验手机号
+        return smsService.sendSms(sms) ;
+
+    }
+
+    @Override
+    public boolean updateLoginPassword(Long userId, UpdateLoginParam updateLoginParam) {
+        User user =  getById(userId);
+        if (user == null){
+            throw new IllegalArgumentException("请输入正确的用户ID");
+        }
+        // 校验之前的密码
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean matches = bCryptPasswordEncoder.matches(updateLoginParam.getOldPassword(), user.getPassword());
+        if (!matches){
+            throw new IllegalArgumentException("请输入正确的密码");
+        }
+
+        //校验手机验证码
+        String validateCode = updateLoginParam.getValidateCode();
+        // 转成E.164 format格式 因为aws发送信息后保存在redis的是E.164
+        String formattedPhone = convertToE164Format(user.getMobile());
+        String phoneValidateCode = stringRedisTemplate.opsForValue().get("SMS:CHANGE_LOGIN_PWD_VERIFY:" + formattedPhone);
+
+        if (!validateCode.equals(phoneValidateCode)){
+            throw new IllegalArgumentException("手机验证码错误");
+        }
+
+        user.setPassword(bCryptPasswordEncoder.encode(updateLoginParam.getNewPassword()));
+        return updateById(user);
+    }
+
+    @Override
+    public boolean updatePayPassword(Long userId, UpdateLoginParam updateLoginParam) {
+        User user =  getById(userId);
+        if (user == null){
+            throw new IllegalArgumentException("请输入正确的用户ID");
+        }
+        // 校验之前的密码
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        boolean matches = bCryptPasswordEncoder.matches(updateLoginParam.getOldPassword(), user.getPaypassword());
+        if (!matches){
+            throw new IllegalArgumentException("请输入正确的密码");
+        }
+
+        //校验手机验证码
+        String validateCode = updateLoginParam.getValidateCode();
+        // 转成E.164 format格式 因为aws发送信息后保存在redis的是E.164
+        String formattedPhone = convertToE164Format(user.getMobile());
+        String phoneValidateCode = stringRedisTemplate.opsForValue().get("SMS:CHANGE_PAY_PWD_VERIFY:" + formattedPhone);
+        if (!validateCode.equals(phoneValidateCode)){
+            throw new IllegalArgumentException("手机验证码错误");
+        }
+
+        user.setPaypassword(bCryptPasswordEncoder.encode(updateLoginParam.getNewPassword()));
+        return updateById(user);
+    }
+
+    @Override
+    public boolean unsetPayPassword(Long userId, UnsetPasswordParam unsetPasswordParam) {
+        User user =  getById(userId);
+        if (user == null){
+            throw new IllegalArgumentException("请输入正确的用户ID");
+        }
+        // 校验手机验证码
+        String validateCode = unsetPasswordParam.getValidateCode();
+        // 转成E.164 format格式 因为aws发送信息后保存在redis的是E.164
+        String formattedPhone = convertToE164Format(user.getMobile());
+        String phoneValidateCode = stringRedisTemplate.opsForValue().get("SMS:FORGOT_PAY_PWD_VERIFY:" + formattedPhone);
+        if (!validateCode.equals(phoneValidateCode)){
+            throw new IllegalArgumentException("手机验证码错误");
+        }
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        user.setPaypassword(bCryptPasswordEncoder.encode(unsetPasswordParam.getPayPassword()));
+        return updateById(user);
+    }
+
+    @Override
+    public List<User> getUserInvites(Long userId) {
+        List<User> list = list(new LambdaQueryWrapper<User>().eq(User::getDirectInviteid, userId));
+        list.forEach(user -> {
+            user.setPaypassword(HIDDEN_FIELD);
+            user.setPassword(HIDDEN_FIELD);
+            user.setAccessKeyId(HIDDEN_FIELD);
+            user.setAccessKeySecret(HIDDEN_FIELD);
+        });
+        return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list;
+    }
+
+
 }

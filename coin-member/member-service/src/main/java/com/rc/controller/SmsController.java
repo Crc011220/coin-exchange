@@ -9,10 +9,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/sms")
@@ -23,13 +20,13 @@ public class SmsController {
     @Autowired
     private SmsService smsService;
 
-    @GetMapping("/sendTo")
+    @PostMapping("/sendTo")
     @ApiOperation(value = "发送短信")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "sms", value = "短信的json数据")
     })
-    public R sendMsg(@RequestBody @Validated Sms sms) {
-        boolean isOk = smsService.sendMsg(sms);
+    public R sendSms(@RequestBody @Validated Sms sms) {
+        boolean isOk = smsService.sendSms(sms);
         if (isOk) {
             return R.ok();
         }

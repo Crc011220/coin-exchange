@@ -12,7 +12,7 @@ public interface SmsService extends IService<Sms>{
      * @return
      * 是否发送成功
      */
-    boolean sendMsg(Sms sms);
+    boolean sendSms(Sms sms);
 }
 
 

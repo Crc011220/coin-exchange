@@ -42,4 +42,7 @@ public class Constants {
      */
     public static final long CAPTCHA_EXPIRATION = 2;
 
+
+    public static final String HIDDEN_FIELD = "******";
+
 }

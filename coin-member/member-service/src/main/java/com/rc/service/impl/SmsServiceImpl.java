@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
+import static com.rc.utils.MobileUtils.convertToE164Format;
+
 @Service
 @Slf4j
 public class SmsServiceImpl extends ServiceImpl<SmsMapper, Sms> implements SmsService {
@@ -36,18 +40,28 @@ public class SmsServiceImpl extends ServiceImpl<SmsMapper, Sms> implements SmsSe
 
     // 发送短信的方法
     @Override
-    public boolean sendMsg(Sms sms) {
+    public boolean sendSms(Sms sms) {
         log.info("发送短信{}", JSON.toJSONString(sms, true));
+
+        // 将手机号转换为 E.164 格式
+        String formattedMobile = convertToE164Format(sms.getMobile());
+        if (formattedMobile == null) {
+            return false; // 如果手机号无效，返回失败
+        }
+        sms.setMobile(formattedMobile);
 
         // 生成验证码并设置短信内容
         String code = generateVerificationCode();
-        sms.setContent("Your verification code is：" + code + "，the validity period is 5 minutes.");
+        log.info("发送手机号: {}", sms.getMobile());
+        sms.setContent("Your Coin-Exchange verification code is: " + code + ". Valid for 5 minutes.");
 
         // 使用 AWS SNS 发送短信
         try {
             boolean result = sendSmsUsingSNS(sms);
             if (result) {
                 sms.setStatus(1); // 短信发送成功
+                // 设置验证码到 Redis 5分钟
+                redisTemplate.opsForValue().set("SMS:" + sms.getTemplateCode() + ":" + sms.getMobile(), code,5, TimeUnit.MINUTES);;
                 return save(sms); // 保存发送记录
             } else {
                 return false; // 短信发送失败
@@ -87,5 +101,8 @@ public class SmsServiceImpl extends ServiceImpl<SmsMapper, Sms> implements SmsSe
         }
         return false; // 短信发送失败
     }
+
+
+
 
 }

@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,5 +70,25 @@ public class UserBankController {
         }
         return R.fail("银行卡状态修改失败") ;
     }
+
+    @GetMapping("/current")
+    @ApiOperation(value = "查询用户的卡号")
+    public R<UserBank> currentUserBank(){
+        String idStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        UserBank userBank =  userBankService.getUserBankByUserId(Long.valueOf(idStr)) ;
+        return R.ok(userBank) ;
+    }
+
+
+    @PostMapping("/bind")
+    @ApiOperation("绑定用户的卡号")
+    public R bindUserBank(@RequestBody @Validated UserBank userBank){
+        String idStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        boolean isOk = userBankService.bindBank(Long.valueOf(idStr),userBank);
+        return isOk ? R.ok() : R.fail("绑定失败");
+
+    }
+
+
 }
 
