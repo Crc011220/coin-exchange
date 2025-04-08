@@ -54,6 +54,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         // 1 获取token 需要远程调用authorization-server 该服务
         ResponseEntity<JwtToken> tokenResponseEntity = oAuth2FeignClient.getToken(
                 "password", username, password, "admin_type", basicToken);
+        log.info("密码：" + password);
         if(tokenResponseEntity.getStatusCode()!= HttpStatus.OK){
             throw new ApiException(ApiErrorCode.FAILED) ;
         }

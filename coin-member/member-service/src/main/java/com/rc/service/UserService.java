@@ -3,6 +3,7 @@ package com.rc.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.rc.model.UserAuthForm;
 import io.swagger.models.auth.In;
 
 public interface UserService extends IService<User>{
@@ -16,4 +17,8 @@ public interface UserService extends IService<User>{
 
     // 更新用户的审核状态
     void updateUserAuthStatus(Long id, Byte authStatus, Long authCode, String remark);
+
+    // 验证用户身份
+    boolean identifyVerify(Long aLong, UserAuthForm userAuthForm);
+
 }

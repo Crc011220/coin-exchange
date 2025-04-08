@@ -8,3 +8,4 @@ spring:
       server-addr: nacos-server:8848
       config:
         file-extension: yaml
+

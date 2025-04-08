@@ -1,6 +1,8 @@
 package com.rc.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.extension.enums.ApiErrorCode;
+import com.baomidou.mybatisplus.extension.exceptions.ApiException;
 import com.rc.feign.JwtToken;
 import com.rc.feign.OAuth2FeignClient;
 import com.rc.geetest.GeetestLib;
@@ -55,6 +57,7 @@ public class LoginServiceImpl implements LoginService {
         log.info("用户{}开始登录", loginForm.getUsername());
         checkFormData(loginForm);
         LoginUser loginUser = null;
+        log.info("密码:{}", loginForm.getPassword());
         // 登录就是使用用户名和密码换一个token 而已--->远程调用->authorization-server
         ResponseEntity<JwtToken> tokenResponseEntity = oAuth2FeignClient.getToken("password",
                 loginForm.getUsername(), loginForm.getPassword(), "member_type", basicToken);
@@ -62,9 +65,8 @@ public class LoginServiceImpl implements LoginService {
         if (tokenResponseEntity.getStatusCode() == HttpStatus.OK) {
             JwtToken jwtToken = tokenResponseEntity.getBody();
             log.info("远程调用成功,结果为", JSON.toJSONString(jwtToken, true));
-            // token 必须包含bearer = getTokenType()
-            loginUser = new LoginUser(loginForm.getUsername(), jwtToken.getExpiresIn(),
-                    jwtToken.getTokenType() + " " + jwtToken.getAccessToken(), jwtToken.getRefreshToken());
+            // token 必须包含bearer
+            loginUser = new LoginUser(loginForm.getUsername(), jwtToken.getExpiresIn(), jwtToken.getTokenType() + " " + jwtToken.getAccessToken(), jwtToken.getRefreshToken());
             // 使用网关解决登出的问题:
             // token 是直接存储的
             strRedisTemplate.opsForValue().set(jwtToken.getAccessToken(), "", jwtToken.getExpiresIn(), TimeUnit.SECONDS);
@@ -73,7 +75,8 @@ public class LoginServiceImpl implements LoginService {
     }
 
     /**
-     * 极验的数据校验
+     * 校验数据
+     * 极验证的数据校验
      *
      * @param loginForm
      */
@@ -81,14 +84,13 @@ public class LoginServiceImpl implements LoginService {
         String challenge = loginForm.getGeetest_challenge();
         String validate = loginForm.getGeetest_validate();
         String seccode = loginForm.getGeetest_seccode();
-        int status;
-        String userId;
-        // redis必须取出值，若取不出值，直接当做异常退出
-        String statusStr = redisTemplate.opsForValue().get(GeetestLib.GEETEST_SERVER_STATUS_SESSION_KEY+ ":" + loginForm.getUuid()).toString();
+        int status = 0;
+        String userId = "";
+        // session必须取出值，若取不出值，直接当做异常退出
+        String statusStr = redisTemplate.opsForValue().get(GeetestLib.GEETEST_SERVER_STATUS_SESSION_KEY + ":" + loginForm.getUuid()).toString();
         status = Integer.parseInt(statusStr);
         userId = redisTemplate.opsForValue().get(GeetestLib.GEETEST_SERVER_USER_KEY + ":" + loginForm.getUuid()).toString();
-
-        GeetestLibResult result;
+        GeetestLibResult result = null;
         if (status == 1) {
             /*
             自定义参数,可选择添加
@@ -102,11 +104,10 @@ public class LoginServiceImpl implements LoginService {
             ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             paramMap.put("ip_address", IpUtil.getIpAddr(servletRequestAttributes.getRequest()));
             result = geetestLib.successValidate(challenge, validate, seccode, paramMap);
-            log.info("验证的结果为{}",JSON.toJSONString(result));
+            log.info("验证的结果为{}", JSON.toJSONString(result));
         } else {
             result = geetestLib.failValidate(challenge, validate, seccode);
         }
-
         if(result.getStatus()!=1){
             log.error("验证异常",JSON.toJSONString(result,true));
             throw new IllegalArgumentException("验证码验证异常") ;

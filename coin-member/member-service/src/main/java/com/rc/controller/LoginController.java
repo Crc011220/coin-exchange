@@ -27,7 +27,7 @@ public class LoginController {
             @ApiImplicitParam(name = "loginForm",value = "登录的表单参数")
     })
     public R<LoginUser> login(@RequestBody @Validated LoginForm loginForm){
-       LoginUser loginUser =  loginService.login(loginForm) ;
+       LoginUser loginUser = loginService.login(loginForm) ;
        return R.ok(loginUser) ;
     }
 }

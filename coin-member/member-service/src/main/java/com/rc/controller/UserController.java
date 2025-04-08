@@ -6,6 +6,7 @@ import com.rc.domain.User;
 import com.rc.domain.UserAuthAuditRecord;
 import com.rc.domain.UserAuthInfo;
 import com.rc.model.R;
+import com.rc.model.UserAuthForm;
 import com.rc.service.UserAuthAuditRecordService;
 import com.rc.service.UserAuthInfoService;
 import com.rc.service.UserService;
@@ -16,6 +17,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
@@ -186,10 +188,35 @@ public class UserController {
     public R updateUserAuthStatus(@RequestParam(required = true) Long id, @RequestParam(required = true) Byte authStatus, @RequestParam(required = true) Long authCode, String remark) {
         // 审核: 1 修改user 里面的reviewStatus
         // 2 在authAuditRecord 里面添加一条记录
-
         userService.updateUserAuthStatus(id, authStatus, authCode, remark);
-
         return R.ok();
+    }
+
+
+    @GetMapping("/current/info")
+    @ApiOperation(value = "获取当前登录用户的详情")
+    public R<User> currentUserInfo(){
+        // 获取用户的Id
+        String idStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        User user = userService.getById(Long.valueOf(idStr));
+        user.setPassword("****");
+        user.setPaypassword("*****");
+        return R.ok(user) ;
+    }
+
+
+    @PostMapping("/authAccount")
+    @ApiOperation(value = "用户的实名认证")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "" ,value = "")
+    })
+    public R identifyCheck(@RequestBody UserAuthForm userAuthForm){
+        String idStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        boolean isOk = userService.identifyVerify(Long.valueOf(idStr), userAuthForm) ;
+        if(isOk){
+            return R.ok() ;
+        }
+        return R.fail("认证失败") ;
     }
 
 

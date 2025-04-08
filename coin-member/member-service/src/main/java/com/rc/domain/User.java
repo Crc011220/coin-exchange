@@ -1,6 +1,7 @@
 package com.rc.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.Date;
@@ -230,4 +231,14 @@ public class User {
     @TableField(value = "created", fill = FieldFill.INSERT)
     @ApiModelProperty(value="创建时间")
     private Date created;
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="会员的高级认证状态，0-审核中，1-通过，2-拒绝（需要理由seniorAuthDesc），3-未填写 ")
+    private Byte seniorAuthStatus;
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="被拒绝的理由")
+    private String seniorAuthDesc;
 }
