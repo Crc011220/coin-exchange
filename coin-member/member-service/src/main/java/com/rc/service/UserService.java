@@ -3,10 +3,8 @@ package com.rc.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.rc.model.UnsetPasswordParam;
-import com.rc.model.UpdateLoginParam;
-import com.rc.model.UpdatePhoneParam;
-import com.rc.model.UserAuthForm;
+import com.rc.dto.UserDto;
+import com.rc.model.*;
 import io.swagger.models.auth.In;
 
 import java.util.List;
@@ -43,4 +41,11 @@ public interface UserService extends IService<User>{
 
     // 获取用户的邀请列表
     List<User> getUserInvites(Long userId);
+
+    // 通过用户id批量获取用户基础信息
+
+    List<UserDto> getBasicUsers(List<Long> ids);
+
+    // 用户注册
+    boolean register(RegisterParam registerParam);
 }

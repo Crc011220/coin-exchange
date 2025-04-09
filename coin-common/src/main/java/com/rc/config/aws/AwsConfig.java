@@ -1,4 +1,4 @@
-package com.rc.config;
+package com.rc.config.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

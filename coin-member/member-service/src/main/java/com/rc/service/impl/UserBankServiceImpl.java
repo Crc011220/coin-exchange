@@ -2,6 +2,10 @@ package com.rc.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rc.domain.User;
+import com.rc.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,6 +17,9 @@ import com.rc.domain.UserBank;
 import com.rc.service.UserBankService;
 @Service
 public class UserBankServiceImpl extends ServiceImpl<UserBankMapper, UserBank> implements UserBankService{
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public Page<UserBank> findByPage(Page<UserBank> page, Long usrId) {
@@ -26,17 +33,24 @@ public class UserBankServiceImpl extends ServiceImpl<UserBankMapper, UserBank> i
         return getOne(new LambdaQueryWrapper<UserBank>().eq(UserBank::getUserId, userId).eq(UserBank::getStatus, 1));
     }
 
-    //TODO
     @Override
     public boolean bindBank(Long userId, UserBank userBank) {
+        String payPassword = userBank.getPayPassword();
+        User user = userService.getById(userId);
+        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        if (!bCryptPasswordEncoder.matches(payPassword, user.getPaypassword())){
+            throw new IllegalArgumentException("支付密码不正确");
+        }
+
         Long id = userBank.getId(); // 有id代表修改操作
         if (id != null){
-            UserBank byId = getById(id);
-            if (byId != null){
-                userBank.setLastUpdateTime(new Date());
-                return updateById(userBank);
+            UserBank userBankDb = getById(id);
+            if (userBankDb == null){
+                throw new IllegalArgumentException("该银行卡不存在, 用户银行卡id输入错误");
             }
+            return updateById(userBank);
         }
-        return false;
+        userBank.setUserId(userId);
+        return save(userBank);
     }
 }

@@ -56,6 +56,9 @@ public class AutoFiledValueHandler implements MetaObjectHandler {
         Long userId = null;
         if (authentication != null) {
             String principal = authentication.getPrincipal().toString();
+            if("anonymousUser".equals(principal)) {
+                return null;
+            }
             userId = Long.valueOf(principal);
         }
         return userId;

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.User;
 import com.rc.domain.UserAuthAuditRecord;
 import com.rc.domain.UserAuthInfo;
+import com.rc.dto.UserDto;
+import com.rc.feign.UserServiceFeign;
 import com.rc.model.*;
 import com.rc.service.UserAuthAuditRecordService;
 import com.rc.service.UserAuthInfoService;
@@ -31,7 +33,7 @@ import static com.rc.constant.Constants.HIDDEN_FIELD;
 @RestController
 @RequestMapping("/users")
 @Api(tags = "会员的控制器")
-public class UserController {
+public class UserController implements UserServiceFeign {
 
 
     @Autowired
@@ -309,5 +311,21 @@ public class UserController {
         List<User> users = userService.getUserInvites(Long.valueOf(idStr));
         return R.ok(users) ;
     }
+
+    @Override
+    public List<UserDto> getBasicUsers(List<Long> ids) {
+        return userService.getBasicUsers(ids);
+    }
+
+    @PostMapping("/register")
+    @ApiOperation(value = "用户的注册")
+    public R register(@RequestBody RegisterParam registerParam) {
+        boolean isOk = userService.register(registerParam);
+        if (isOk) {
+            return R.ok();
+        }
+        return R.fail("注册失败");
+    }
+
 }
 
