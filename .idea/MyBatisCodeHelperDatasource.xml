@@ -7,10 +7,10 @@
         <option name="generateService" value="true" />
         <option name="generateServiceInterface" value="true" />
         <option name="javaMapperPackage" value="com.rc.mapper" />
-        <option name="javaMapperPath" value="$PROJECT_DIR$/coin-member/member-service/src/main/java" />
+        <option name="javaMapperPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
         <option name="javaModelPackage" value="com.rc.domain" />
-        <option name="javaModelPath" value="$PROJECT_DIR$/coin-member/member-service/src/main/java" />
-        <option name="lastDatabaseCrudChooseModuleName" value="member-service" />
+        <option name="javaModelPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+        <option name="lastDatabaseCrudChooseModuleName" value="finance-service" />
         <option name="lombokAllArgConstructor" value="true" />
         <option name="lombokDataAnnotation" value="true" />
         <option name="lombokNoArgsConstructor" value="true" />
@@ -31,6 +31,22 @@
                   <option name="javaServicePath" value="$PROJECT_DIR$/coin-admin/admin-service/src/main/java" />
                   <option name="xmlPackage" value="mappers" />
                   <option name="xmlPath" value="$PROJECT_DIR$/coin-admin/admin-service/src/main/resources" />
+                </UserPackageAndPathInfoByModule>
+              </value>
+            </entry>
+            <entry key="finance-service">
+              <value>
+                <UserPackageAndPathInfoByModule>
+                  <option name="javaMapperPackage" value="com.rc.mapper" />
+                  <option name="javaMapperPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+                  <option name="javaModelPacakge" value="com.rc.domain" />
+                  <option name="javaModelPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+                  <option name="javaServiceInterfacePackage" value="com.rc.service" />
+                  <option name="javaServiceInterfacePath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+                  <option name="javaServicePackage" value="com.rc.service.impl" />
+                  <option name="javaServicePath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+                  <option name="xmlPackage" value="mappers" />
+                  <option name="xmlPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/resources" />
                 </UserPackageAndPathInfoByModule>
               </value>
             </entry>
@@ -55,15 +71,172 @@
         <option name="mybatisPlusIdType" value="AUTO" />
         <option name="tableGenerateConfigs">
           <map>
+            <entry key="coin-exchange:account">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="Account" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:account_detail">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="AccountDetail" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:address_pool">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="AddressPool" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:admin_address">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="AdminAddress" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
             <entry key="coin-exchange:admin_bank">
               <value>
                 <TableGenerateConfig>
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="AdminBank" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="sequenceColumn" value="" />
                   <option name="sequenceId" value="" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:cash_recharge">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CashRecharge" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:cash_recharge_audit_record">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CashRechargeAuditRecord" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:cash_withdraw_audit_record">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CashWithdrawAuditRecord" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:cash_withdrawals">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CashWithdrawals" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="Coin" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_balance">
+              <value>
+                <TableGenerateConfig>
+                  <option name="javaModelName" value="CoinBalance" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_config">
+              <value>
+                <TableGenerateConfig>
+                  <option name="javaModelName" value="CoinConfig" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_recharge">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CoinRecharge" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_server">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CoinServer" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_type">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CoinType" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_withdraw">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CoinWithdraw" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:coin_withdraw_audit_record">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="CoinWithdrawAuditRecord" />
+                  <option name="moduleName" value="finance-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -74,7 +247,56 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="Config" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:forex_account">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="ForexAccount" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:forex_account_detail">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="ForexAccountDetail" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:forex_close_position_order">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="ForexClosePositionOrder" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:forex_coin">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="ForexCoin" />
+                  <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:forex_open_position_order">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="ForexOpenPositionOrder" />
+                  <option name="moduleName" value="finance-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -85,7 +307,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="Notice" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -96,7 +317,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="Sms" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -107,7 +327,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysMenu" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -118,7 +337,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysPrivilege" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -129,7 +347,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysRole" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -140,7 +357,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysRoleMenu" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -151,7 +367,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysRolePrivilege" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -162,7 +377,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysRolePrivilegeUser" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -173,7 +387,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysUser" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -183,7 +396,6 @@
                 <TableGenerateConfig>
                   <option name="javaModelName" value="SysUserLog" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -194,7 +406,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysUserRole" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -205,7 +416,15 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="User" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:user_account_freeze">
+              <value>
+                <TableGenerateConfig>
+                  <option name="javaModelName" value="UserAccountFreeze" />
+                  <option name="moduleName" value="finance-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -216,7 +435,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="UserAddress" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -226,7 +444,6 @@
                 <TableGenerateConfig>
                   <option name="javaModelName" value="UserAuthAuditRecord" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -237,7 +454,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="UserAuthInfo" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -248,7 +464,15 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="UserBank" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:user_coin_freeze">
+              <value>
+                <TableGenerateConfig>
+                  <option name="javaModelName" value="UserCoinFreeze" />
+                  <option name="moduleName" value="finance-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -259,7 +483,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="UserLoginLog" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -270,7 +493,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="UserWallet" />
                   <option name="moduleName" value="member-service" />
-                  <option name="mybatisplusIdType" value="AUTO" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -281,7 +503,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="WebConfig" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -292,7 +513,6 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="WorkIssue" />
                   <option name="moduleName" value="admin-service" />
-                  <option name="mybatisplusIdType" value="INPUT" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -302,7 +522,7 @@
         <option name="useSwagger" value="true" />
         <option name="userMybatisPlus" value="true" />
         <option name="xmlMapperPackage" value="mappers" />
-        <option name="xmlMapperPath" value="$PROJECT_DIR$/coin-member/member-service/src/main/resources" />
+        <option name="xmlMapperPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/resources" />
       </ProjectProfile>
     </option>
   </component>

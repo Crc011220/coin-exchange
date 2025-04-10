@@ -5,7 +5,6 @@ import com.rc.domain.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rc.dto.UserDto;
 import com.rc.model.*;
-import io.swagger.models.auth.In;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public interface UserService extends IService<User>{
     boolean updatePayPassword(Long userId, UpdateLoginParam updateLoginParam);
 
     // 重置交易密码
-    boolean unsetPayPassword(Long userId, UnsetPasswordParam unsetPasswordParam);
+    boolean unsetPayPassword(Long userId, UnsetPayPasswordParam unsetPayPasswordParam);
 
     // 获取用户的邀请列表
     List<User> getUserInvites(Long userId);
@@ -48,4 +47,7 @@ public interface UserService extends IService<User>{
 
     // 用户注册
     boolean register(RegisterParam registerParam);
+
+    // 重置登录密码
+    boolean unsetLoginPassword(UnsetPasswordParam unsetPasswordParam);
 }

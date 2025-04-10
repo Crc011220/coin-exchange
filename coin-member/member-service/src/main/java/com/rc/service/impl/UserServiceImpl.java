@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -261,13 +260,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public boolean unsetPayPassword(Long userId, UnsetPasswordParam unsetPasswordParam) {
+    public boolean unsetPayPassword(Long userId, UnsetPayPasswordParam unsetPayPasswordParam) {
         User user =  getById(userId);
         if (user == null){
             throw new IllegalArgumentException("请输入正确的用户ID");
         }
         // 校验手机验证码
-        String validateCode = unsetPasswordParam.getValidateCode();
+        String validateCode = unsetPayPasswordParam.getValidateCode();
         // 转成E.164 format格式 因为aws发送信息后保存在redis的是E.164
         String formattedPhone = convertToE164Format(user.getMobile());
         String phoneValidateCode = stringRedisTemplate.opsForValue().get("SMS:FORGOT_PAY_PWD_VERIFY:" + formattedPhone);
@@ -275,7 +274,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new IllegalArgumentException("手机验证码错误");
         }
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        user.setPaypassword(bCryptPasswordEncoder.encode(unsetPasswordParam.getPayPassword()));
+        user.setPaypassword(bCryptPasswordEncoder.encode(unsetPayPasswordParam.getPayPassword()));
         return updateById(user);
     }
 
@@ -354,7 +353,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user;
     }
 
+    @Override
+    public boolean unsetLoginPassword(UnsetPasswordParam unsetPasswordParam) {
+        log.info("忘记登录密码后重置{}", JSON.toJSONString(unsetPasswordParam, true));
 
+        unsetPasswordParam.check(geetestLib, redisTemplate);
+        String s = stringRedisTemplate.opsForValue().get("SMS:FORGOT_LOGIN_PWD_VERIFY:" + unsetPasswordParam.getMobile());
+        if (!unsetPasswordParam.getValidateCode().equals(s)) {
+            throw new IllegalArgumentException("验证码错误");
+        }
+        String mobile = unsetPasswordParam.getMobile();
+        User user = getOne(new LambdaQueryWrapper<User>().eq(User::getMobile, mobile));
+        if (user == null) {
+            throw new IllegalArgumentException("该用户不存在");
+        }
 
-
+        user.setPassword(new BCryptPasswordEncoder().encode(unsetPasswordParam.getPassword()));
+        return updateById(user);
+    }
 }

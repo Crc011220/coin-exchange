@@ -16,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -295,9 +293,9 @@ public class UserController implements UserServiceFeign {
 
     @PostMapping("/setPayPassword")
     @ApiOperation(value = "忘记交易密码后重置")
-    public R setPayPassword(@RequestBody @Validated UnsetPasswordParam unsetPasswordParam) {
+    public R setPayPassword(@RequestBody @Validated UnsetPayPasswordParam unsetPayPasswordParam) {
         String idStr = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
-        boolean isOk = userService.unsetPayPassword(Long.valueOf(idStr), unsetPasswordParam);
+        boolean isOk = userService.unsetPayPassword(Long.valueOf(idStr), unsetPayPasswordParam);
         if (isOk) {
             return R.ok();
         }
@@ -325,6 +323,16 @@ public class UserController implements UserServiceFeign {
             return R.ok();
         }
         return R.fail("注册失败");
+    }
+
+    @PostMapping("/setPassword")
+    @ApiOperation(value = "忘记登录密码后重置")
+    public R setPassword(@RequestBody @Validated UnsetPasswordParam unsetPasswordParam) {
+        boolean isOk = userService.unsetLoginPassword(unsetPasswordParam);
+        if (isOk) {
+            return R.ok();
+        }
+        return R.fail("重置密码失败");
     }
 
 }

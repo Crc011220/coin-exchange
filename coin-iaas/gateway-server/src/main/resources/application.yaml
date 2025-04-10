@@ -25,7 +25,13 @@ spring:
             - Path=/user/**
           filters:
             - StripPrefix=1
-#        - id: test_router
+        - id: finance-service_router
+          uri: lb://finance-service   # 转发到那个目的地
+          predicates:
+            - Path=/finance/**
+          filters:
+            - StripPrefix=1 # 当前端访问/finance/xx去掉finance
+    #        - id: test_router
 #          uri: http://www.google.com
 #          predicates:
 #            - Path=/test
