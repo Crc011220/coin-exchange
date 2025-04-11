@@ -39,12 +39,9 @@ public class WorkIssueServiceImpl extends ServiceImpl<WorkIssueMapper, WorkIssue
                 .stream()
                 .map(WorkIssue::getUserId)
                 .collect(Collectors.toList());
-        List<UserDto> userDtos = userServiceFeign.getBasicUsers(userIds);
-        if(CollectionUtils.isEmpty(userDtos)){
-            return pageData ;
-        }
-        Map<Long, UserDto> idMappings = userDtos.stream()
-                .collect(Collectors.toMap(UserDto::getId, userDto -> userDto));
+
+        Map<Long, UserDto> idMappings = userServiceFeign.getBasicUsers(userIds,null,null);
+
         pageData.getRecords().forEach(workIssue->{
             UserDto userDto = idMappings.get(workIssue.getUserId());
             workIssue.setUserName(userDto==null?"测试用户":userDto.getUsername());

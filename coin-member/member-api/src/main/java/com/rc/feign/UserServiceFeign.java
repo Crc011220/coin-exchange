@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
+import java.util.Map;
 
 @FeignClient(name = "member-service",configuration = OAuth2FeignConfig.class ,path = "/users")
 public interface UserServiceFeign {
@@ -17,5 +18,8 @@ public interface UserServiceFeign {
      * @return
      */
     @GetMapping("/basic/users")
-    List<UserDto> getBasicUsers(@RequestParam("ids") List<Long> ids) ;
+    Map<Long,UserDto> getBasicUsers(@RequestParam(value = "ids",required = false) List<Long> ids,
+                                    @RequestParam(value = "username",required = false)String username,
+                                    @RequestParam(value = "mobile",required = false)String mobile) ;
+
 }

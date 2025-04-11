@@ -87,7 +87,7 @@ public class CoinController {
 
 
     @PatchMapping
-    @ApiOperation(value = "修改我们的币种的信息")
+    @ApiOperation(value = "修改币种的信息")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "coin", value = "coin的json数据")
     })
@@ -98,4 +98,21 @@ public class CoinController {
         }
         return R.fail("修改失败");
     }
+
+    @PostMapping
+    @ApiOperation(value = "新增币种的信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "coin", value = "coin的json数据")
+    })
+    public R<Coin> save(@RequestBody @Validated Coin coin) {
+        coin.setStatus((byte) 1);
+        boolean updateById = coinService.save(coin);
+        if (updateById) {
+            return R.ok(coin);
+        }
+        return R.fail("新增失败");
+    }
+
+    
+
 }

@@ -25,6 +25,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static com.rc.constant.Constants.HIDDEN_FIELD;
 
@@ -311,8 +312,8 @@ public class UserController implements UserServiceFeign {
     }
 
     @Override
-    public List<UserDto> getBasicUsers(List<Long> ids) {
-        return userService.getBasicUsers(ids);
+    public Map<Long, UserDto> getBasicUsers(List<Long> ids, String userName, String mobile) {
+        return userService.getBasicUsers(ids, userName, mobile);
     }
 
     @PostMapping("/register")

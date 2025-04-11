@@ -11,6 +11,7 @@ import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 
 /**
     * 充值表
@@ -167,4 +168,12 @@ public class CashRecharge {
     @TableField(value = "last_time")
     @ApiModelProperty(value="最后确认到账时间。")
     private Date lastTime;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户名")
+    private String userName;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户真实姓名")
+    private String realName;
 }

@@ -7,6 +7,7 @@ import com.rc.dto.UserDto;
 import com.rc.model.*;
 
 import java.util.List;
+import java.util.Map;
 
 public interface UserService extends IService<User>{
 
@@ -42,9 +43,11 @@ public interface UserService extends IService<User>{
     List<User> getUserInvites(Long userId);
 
     // 通过用户id批量获取用户基础信息
-
-    List<UserDto> getBasicUsers(List<Long> ids);
-
+    Map<Long,UserDto> getBasicUsers(
+            List<Long> ids,
+            String userName,
+            String mobile
+    );
     // 用户注册
     boolean register(RegisterParam registerParam);
 

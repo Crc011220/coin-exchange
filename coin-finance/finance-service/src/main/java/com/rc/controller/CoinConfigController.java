@@ -34,7 +34,7 @@ public class CoinConfigController {
             @ApiImplicitParam(name = "coinConfig" ,value = "coinConfig json")
     )
     public R updateCoinConfig(@RequestBody @Validated CoinConfig coinConfig){
-        boolean update = coinConfigService.updateById(coinConfig);
+        boolean update = coinConfigService.saveOrUpdate(coinConfig);
         if (update) {
             return R.ok();
         }

@@ -36,7 +36,6 @@ public class CoinConfig {
      */
     @TableField(value = "`name`")
     @ApiModelProperty(value="币种名称")
-    @NotBlank
     private String name;
 
     /**
@@ -44,7 +43,6 @@ public class CoinConfig {
      */
     @TableField(value = "coin_type")
     @ApiModelProperty(value="btc-比特币系列；eth-以太坊；ethToken-以太坊代币；etc-以太经典；\r\n\r\n")
-    @NotBlank
     private String coinType;
 
     /**

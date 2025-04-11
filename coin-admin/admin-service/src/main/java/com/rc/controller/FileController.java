@@ -27,6 +27,9 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.time.Duration;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -69,7 +72,6 @@ public class FileController {
                 software.amazon.awssdk.core.sync.RequestBody.fromInputStream(file.getInputStream(), file.getSize())
         );
 
-
         //https://coin-exchange-imgs.s3.ap-southeast-2.amazonaws.com/2025/04/04/1.png 正确的url
         //https://coin-exchange-imgs.ap-southeast-2.amazonaws.com/2025/04/04/1.png 错误的url
 
@@ -82,33 +84,26 @@ public class FileController {
     @ApiOperation(value = "获取一个上传的票据")
     public R<Map<String, String>> asyncUpload() {
         String dir = DateUtil.today().replaceAll("-", "/");
-        Map<String, String> uploadPolicy = getUploadPolicy(30L,3*1024*1024L,dir,"");
+        Map<String, String> uploadPolicy = getUploadPolicy(30L, 3 * 1024 * 1024L, dir, "");
         return R.ok(uploadPolicy);
     }
 
     private Map<String, String> getUploadPolicy(Long expireTime, Long maxFileSize, String dir, String callbackUrl) {
-        // Create response map for frontend
         Map<String, String> respMap = new LinkedHashMap<>();
 
-        try {
-            // Create S3 presigner with explicit endpoint configuration
-            S3Presigner presigner = S3Presigner.builder()
-                    .region(Region.of(region))
-                    // Force the use of the standard AWS endpoint
-                    .endpointOverride(null)
-                    .build();
+        try (S3Presigner presigner = S3Presigner.builder()
+                .region(Region.of(region))
+                .build()) {
 
-            // Calculate expiration time
-            long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
+            // 生成对象 key
+            String objectKey = dir + "/" + UUID.randomUUID().toString();
 
-            // Generate a pre-signed URL for each potential file (we'll use a placeholder)
-            String objectKey = dir + "/${filename}";
-
-            // Create a presigned request - note this is for PUT object
+            // 注意：这里为文件上传设置正确的 Content-Type
+            // 对于直接上传二进制文件，使用 application/octet-stream
+            // 如果客户端要上传图片，可以考虑使用 image/jpeg 或 image/png 等
             PutObjectRequest objectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(objectKey)
-                    .contentType("application/octet-stream")
                     .build();
 
             PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -116,42 +111,30 @@ public class FileController {
                     .putObjectRequest(objectRequest)
                     .build();
 
+            // 生成预签名 URL
             PresignedPutObjectRequest presignedRequest = presigner.presignPutObject(presignRequest);
             URL presignedUrl = presignedRequest.url();
 
-            // Manually construct the proper S3 endpoint URL
-            String s3Endpoint = "https://" + bucketName + ".s3." + region + ".amazonaws.com";
+            // 构建响应
+            respMap.put("url", presignedUrl.toString());
+            respMap.put("objectKey", objectKey);
 
-            // Build response with hardcoded S3 endpoint
-            respMap.put("url", presignedRequest.url().toString());  // Base URL with directory
-            respMap.put("host", s3Endpoint);  // Full S3 endpoint
-            respMap.put("dir", dir);
-            respMap.put("expire", String.valueOf(expireEndTime / 1000));
-
-            // Extract query parameters from the presigned URL
+            // 不要重新设置这些参数，直接使用预签名 URL 生成的值
+            // 从 URL 中提取所有查询参数
             Map<String, String> queryParams = extractQueryParams(presignedUrl.getQuery());
+            queryParams.forEach(respMap::put);
 
-            // Add AWS specific query parameters
-            respMap.put("X-Amz-Algorithm", queryParams.get("X-Amz-Algorithm"));
-            respMap.put("X-Amz-Credential", queryParams.get("X-Amz-Credential"));
-            respMap.put("X-Amz-Date", queryParams.get("X-Amz-Date"));
-            respMap.put("X-Amz-Expires", queryParams.get("X-Amz-Expires"));
-            respMap.put("X-Amz-SignedHeaders", queryParams.get("X-Amz-SignedHeaders"));
-            respMap.put("X-Amz-Signature", queryParams.get("X-Amz-Signature"));
-
-            // For file size limitation, we'll inform the frontend
             respMap.put("maxFileSize", String.valueOf(maxFileSize));
+            respMap.put("bucket", bucketName);
+            respMap.put("region", region);
 
-            // Add callback URL if provided
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 respMap.put("callbackUrl", callbackUrl);
             }
 
-            // Close the presigner
-            presigner.close();
-
         } catch (Exception e) {
             e.printStackTrace();
+            respMap.put("error", "Error generating upload policy: " + e.getMessage());
         }
 
         return respMap;

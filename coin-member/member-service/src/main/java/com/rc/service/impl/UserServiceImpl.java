@@ -27,6 +27,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rc.domain.User;
 import com.rc.mapper.UserMapper;
@@ -290,14 +293,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return CollectionUtils.isEmpty(list) ? Collections.emptyList() : list;
     }
 
+
     @Override
-    public List<UserDto> getBasicUsers(List<Long> ids) {
-        if(CollectionUtils.isEmpty(ids)){
-            return Collections.emptyList() ;
+    public Map<Long, UserDto> getBasicUsers(List<Long> ids, String userName, String mobile) {
+        if(CollectionUtils.isEmpty(ids) && StringUtils.isEmpty(userName) && StringUtils.isEmpty(mobile)){
+            return Collections.emptyMap() ;
         }
-        List<User> list = list(new LambdaQueryWrapper<User>().in(User::getId, ids));
+        List<User> list = list(new LambdaQueryWrapper<User>()
+                .in(User::getId, ids)
+                .like(StringUtils.isNotEmpty(userName), User::getUsername, userName)
+                .like(StringUtils.isNotEmpty(mobile), User::getMobile, mobile)
+        );
+
+        if(CollectionUtils.isEmpty(list)){
+            return Collections.emptyMap() ;
+        }
         // 对象的转化
-        return UserDtoMapper.INSTANCE.convert2Dto(list);
+        List<UserDto> userDtos = UserDtoMapper.INSTANCE.convert2Dto(list);
+        return userDtos.stream().collect(Collectors.toMap(UserDto::getId, userDto -> userDto));
     }
 
     /**
@@ -358,7 +371,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("忘记登录密码后重置{}", JSON.toJSONString(unsetPasswordParam, true));
 
         unsetPasswordParam.check(geetestLib, redisTemplate);
-        String s = stringRedisTemplate.opsForValue().get("SMS:FORGOT_LOGIN_PWD_VERIFY:" + unsetPasswordParam.getMobile());
+        String s = stringRedisTemplate.opsForValue().get("SMS:FORGOT_VERIFY:" + unsetPasswordParam.getMobile());
         if (!unsetPasswordParam.getValidateCode().equals(s)) {
             throw new IllegalArgumentException("验证码错误");
         }
