@@ -296,22 +296,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public Map<Long, UserDto> getBasicUsers(List<Long> ids, String userName, String mobile) {
-        if(CollectionUtils.isEmpty(ids) && StringUtils.isEmpty(userName) && StringUtils.isEmpty(mobile)){
-            return Collections.emptyMap() ;
+        if (CollectionUtils.isEmpty(ids) && StringUtils.isEmpty(userName) && StringUtils.isEmpty(mobile)) {
+            return Collections.emptyMap();
         }
         List<User> list = list(new LambdaQueryWrapper<User>()
-                .in(User::getId, ids)
-                .like(StringUtils.isNotEmpty(userName), User::getUsername, userName)
-                .like(StringUtils.isNotEmpty(mobile), User::getMobile, mobile)
-        );
-
-        if(CollectionUtils.isEmpty(list)){
-            return Collections.emptyMap() ;
+                .in(!CollectionUtils.isEmpty(ids), User::getId, ids)
+                .like(!StringUtils.isEmpty(userName), User::getUsername, userName)
+                .like(!StringUtils.isEmpty(mobile), User::getMobile, mobile));
+        if (CollectionUtils.isEmpty(list)) {
+            return Collections.emptyMap();
         }
-        // 对象的转化
+        // 将user->userDto
         List<UserDto> userDtos = UserDtoMapper.INSTANCE.convert2Dto(list);
-        return userDtos.stream().collect(Collectors.toMap(UserDto::getId, userDto -> userDto));
+        Map<Long, UserDto> userDtoMaps = userDtos.stream().collect(Collectors.toMap(UserDto::getId, userDto -> userDto));
+        return userDtoMaps;
     }
+
 
     /**
      * 用户的注册

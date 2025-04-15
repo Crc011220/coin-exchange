@@ -21,5 +21,6 @@ public interface UserServiceFeign {
     Map<Long,UserDto> getBasicUsers(@RequestParam(value = "ids",required = false) List<Long> ids,
                                     @RequestParam(value = "username",required = false)String username,
                                     @RequestParam(value = "mobile",required = false)String mobile) ;
-
 }
+
+

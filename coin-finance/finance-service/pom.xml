@@ -36,6 +36,11 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>net.sf.supercsv</groupId>
+            <artifactId>super-csv</artifactId>
+            <version>${csv.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -75,4 +75,7 @@ public class CashRechargeAuditRecord {
     @TableField(value = "created")
     @ApiModelProperty(value="创建时间")
     private Date created;
+
+
+
 }

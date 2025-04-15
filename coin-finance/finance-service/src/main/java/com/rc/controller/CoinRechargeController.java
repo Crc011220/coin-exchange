@@ -2,9 +2,10 @@ package com.rc.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.CashRecharge;
-import com.rc.domain.CashWithdrawals;
+import com.rc.domain.CoinRecharge;
+import com.rc.domain.CoinWithdraw;
 import com.rc.model.R;
-import com.rc.service.CashWithdrawalsService;
+import com.rc.service.CoinRechargeService;
 import com.rc.util.ReportCsvUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -28,12 +29,12 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cashWithdrawals")
-@Api(tags = "提现记录的控制器")
-public class CashWithdrawalsController {
+@RequestMapping("/coinRecharges")
+@Api(tags = "币种充值记录控制器")
+public class CoinRechargeController {
 
     @Autowired
-    private CashWithdrawalsService cashWithdrawalsService;
+    private CoinRechargeService coinRechargeService;
 
     @GetMapping("/records")
     @ApiOperation(value = "条件分页查询")
@@ -51,17 +52,16 @@ public class CashWithdrawalsController {
             @ApiImplicitParam(name = "endTime", value = "充值结束时间"),
 
     })
-    public R<Page<CashWithdrawals>> findByPage(
-            @ApiIgnore Page<CashWithdrawals> page,
-            Long userId, String userName,
-            String mobile, Byte status, String numMin, String numMax,
-            String startTime, String endTime
+    public R<Page<CoinRecharge>> findByPage(@ApiIgnore Page<CoinRecharge> page,
+                                            Long coinId, Long userId, String userName,
+                                            String mobile, Byte status, String numMin, String numMax,
+                                            String startTime, String endTime
     ){
-        Page<CashWithdrawals> pageData = cashWithdrawalsService.findByPage(page, userId, userName, mobile, status, numMin, numMax, startTime, endTime);
+        Page<CoinRecharge> pageData = coinRechargeService.findByPage(page, coinId, userId, userName, mobile, status, numMin, numMax, startTime, endTime);
         return R.ok(pageData);
     }
 
-    @GetMapping("exportCNYWithDrawals")
+    @GetMapping("/exportCoinRecharge")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "coinId", value = "币种的Id"),
             @ApiImplicitParam(name = "userId", value = "用户的Id"),
@@ -75,16 +75,18 @@ public class CashWithdrawalsController {
 
     })
     public void recordsExport(
+            Long coinId,
             Long userId, String userName,
             String mobile, Byte status, String numMin, String numMax,
             String startTime, String endTime
     ){
-        Page<CashWithdrawals> cashWithdrawalsPage = new Page<>(1, 10000);
-        Page<CashWithdrawals> pageData = cashWithdrawalsService.findByPage(cashWithdrawalsPage, userId, userName, mobile, status, numMin, numMax, startTime, endTime);
-        List<CashWithdrawals> records = pageData.getRecords();
+        Page<CoinRecharge> page = new Page<>(1, 10000);
+        Page<CoinRecharge> pageData = coinRechargeService.findByPage(page, coinId, userId, userName, mobile, status, numMin, numMax, startTime, endTime);
+        List<CoinRecharge> records = pageData.getRecords();
+
         if (!CollectionUtils.isEmpty(records)){
-            String[] header = {"ID", "用户ID", "用户名", "提现金额(USDT)", "手续费", "到账金额(CNY)", "提现开户名", "银行名称", "账号", "申请时间", "完成时间", "状态", "审核备注", "审核级数"};
-            String[] properties = {"id", "userId", "userName", "num", "fee", "num", "truename", "bank", "bankCard", "created", "lastTime", "status", "remark", "step"};
+            String[] header = {"订单ID", "用户ID", "用户名", "币种名称", "充值数量", "收款地址", "交易ID", "充值时间", "完成时间"};
+            String[] properties = {"id", "userId", "userName", "coinName", "amount", "address", "txid", "created", "lastUpdateTime"};
 
 
             // 长整型转字符串适配器
@@ -124,52 +126,18 @@ public class CashWithdrawalsController {
                 }
             };
 
-            // 状态转换适配器
-            CellProcessorAdaptor statusProcessorAdaptor = new CellProcessorAdaptor() {
-                @Override
-                public <T> T execute(Object o, CsvContext csvContext) {
-                    if (o == null) {
-                        return (T) "未知";
-                    }
-                    String status = String.valueOf(o);
-                    String statusName = "";
-                    switch (status) {
-                        case "0":
-                            statusName = "待审核";
-                            break;
-                        case "1":
-                            statusName = "审核通过";
-                            break;
-                        case "2":
-                            statusName = "拒绝";
-                            break;
-                        case "3":
-                            statusName = "提现成功";
-                            break;
-                        default:
-                            statusName = "未知";
-                            break;
-                    }
-                    return (T) statusName;
-                }
-            };
-
-
             CellProcessor[] PROCESSOR = new CellProcessor[]{
-                    longToStringAdaptor, longToStringAdaptor, null, //"ID", "用户ID", "用户名"
-                    moneyCellProcessorAdaptor, moneyCellProcessorAdaptor, moneyCellProcessorAdaptor, //"提现金额(USDT)", "手续费", "到账金额(CNY)"
-                    null, null, null, //"提现开户名", "银行名称", "账号"
-                    timeCellProcessorAdaptor, timeCellProcessorAdaptor, //"申请时间", "完成时间"
-                    statusProcessorAdaptor, null, //"状态", "审核备注"
-                    null //"审核级数"
+                    longToStringAdaptor, longToStringAdaptor, null, //"订单ID", "用户ID", "用户名",
+                    null, moneyCellProcessorAdaptor, // "币种名称" "充值数量"
+                    null, null, timeCellProcessorAdaptor, timeCellProcessorAdaptor, // "收款地址", "交易ID", "充值时间", "完成时间"
             };
+
             ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             try {
-                ReportCsvUtils.reportListCsv(requestAttributes.getResponse(),header, properties, "场外交易提现审核.csv", records, PROCESSOR);
+                ReportCsvUtils.reportListCsv(requestAttributes.getResponse(),header, properties, "数字货币提现审核.csv", records, PROCESSOR);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
     }
-
 }

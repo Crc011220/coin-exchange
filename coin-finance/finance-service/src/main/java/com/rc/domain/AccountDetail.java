@@ -65,7 +65,7 @@ public class AccountDetail {
      */
     @TableField(value = "direction")
     @ApiModelProperty(value="入账为1，出账为2")
-    private Boolean direction;
+    private Byte direction;
 
     /**
      * 业务类型:
@@ -120,4 +120,15 @@ public class AccountDetail {
     @TableField(value = "created")
     @ApiModelProperty(value="日期")
     private Date created;
+
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户名")
+    private String userName;
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户真实姓名")
+    private String realName;
 }

@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,7 +31,7 @@ public class CashWithdrawalsServiceImpl extends ServiceImpl<CashWithdrawalsMappe
         Map<Long, UserDto> basicUsers = null;
         LambdaQueryWrapper<CashWithdrawals> cashWithdrawalsLambdaQueryWrapper = new LambdaQueryWrapper<>();
         if (userId != null || StringUtils.isNotBlank(userName) || StringUtils.isNotBlank(mobile)) { // 说明携带了用户的相关信息
-            basicUsers = userServiceFeign.getBasicUsers(userId == null ? null : Arrays.asList(userId), userName, mobile);
+            basicUsers = userServiceFeign.getBasicUsers(userId == null ? null : Collections.singletonList(userId), userName, mobile);
             if (CollectionUtils.isEmpty(basicUsers)) { // 没有用户
                 return page;
             }

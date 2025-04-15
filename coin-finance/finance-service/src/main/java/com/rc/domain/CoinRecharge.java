@@ -85,7 +85,7 @@ public class CoinRecharge {
     private String txid;
 
     @TableField(value = "amount")
-    @ApiModelProperty(value="")
+    @ApiModelProperty(value="充值数量")
     private BigDecimal amount;
 
     /**
@@ -101,4 +101,14 @@ public class CoinRecharge {
     @TableField(value = "created")
     @ApiModelProperty(value="创建时间")
     private Date created;
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户名")
+    private String userName;
+
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="用户真实姓名")
+    private String realName;
 }
