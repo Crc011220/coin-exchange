@@ -2,6 +2,7 @@ package com.rc.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.CashRecharge;
+import com.rc.domain.CashWithdrawAuditRecord;
 import com.rc.domain.CashWithdrawals;
 import com.rc.model.R;
 import com.rc.service.CashWithdrawalsService;
@@ -11,10 +12,9 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.supercsv.cellprocessor.CellProcessorAdaptor;
@@ -170,6 +170,18 @@ public class CashWithdrawalsController {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+
+    @PostMapping("/updateWithdrawalsStatus")
+    public R updateWithdrawalsStatus(@RequestBody CashWithdrawAuditRecord cashWithdrawAuditRecord){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+
+        boolean isOk = cashWithdrawalsService.updateWithdrawalsStatus(cashWithdrawAuditRecord, userId);
+        if (!isOk){
+            return R.fail("审核失败");
+        }
+        return R.ok();
     }
 
 }
