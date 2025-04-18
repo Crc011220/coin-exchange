@@ -3,9 +3,11 @@ package com.rc.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.CashRecharge;
 import com.rc.domain.CashRechargeAuditRecord;
+import com.rc.model.CashParam;
 import com.rc.model.R;
 import com.rc.service.CashRechargeService;
 import com.rc.util.ReportCsvUtils;
+import com.rc.vo.CashTradeVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -13,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -216,6 +219,31 @@ public class CashRechargeController {
             return R.fail("审核失败");
         }
     }
+
+    @GetMapping("/user/records")
+    @ApiOperation(value = "查询当前用户的充值记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current",value = "当前页") ,
+            @ApiImplicitParam(name = "size",value = "每页显示的大小") ,
+            @ApiImplicitParam(name = "status",value = "充值的状态") ,
+    })
+    public R<Page<CashRecharge>> findUserCashRecharge(@ApiIgnore Page<CashRecharge> page ,Byte status){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        Page<CashRecharge> cashRechargePage = cashRechargeService.findUserCashRecharge(page ,userId,status) ;
+        return R.ok(cashRechargePage) ;
+    }
+
+    @PostMapping("/buy")
+    @ApiOperation(value = "GCN的充值操作")
+    @ApiImplicitParams({
+            @ApiImplicitParam( name = "cashParam",value = "现金交易的参数")
+    })
+    public R<CashTradeVo> buy(@RequestBody @Validated CashParam cashParam){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        CashTradeVo cashTradeVo = cashRechargeService.buy(userId,cashParam) ;
+        return R.ok(cashTradeVo) ;
+    }
+
 
 }
 

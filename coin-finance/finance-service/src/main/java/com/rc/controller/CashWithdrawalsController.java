@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.CashRecharge;
 import com.rc.domain.CashWithdrawAuditRecord;
 import com.rc.domain.CashWithdrawals;
+import com.rc.model.CashSellParam;
 import com.rc.model.R;
 import com.rc.service.CashWithdrawalsService;
 import com.rc.util.ReportCsvUtils;
@@ -14,6 +15,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -174,6 +176,7 @@ public class CashWithdrawalsController {
 
 
     @PostMapping("/updateWithdrawalsStatus")
+    @ApiOperation(value = "更新提现状态")
     public R updateWithdrawalsStatus(@RequestBody CashWithdrawAuditRecord cashWithdrawAuditRecord){
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
 
@@ -183,5 +186,36 @@ public class CashWithdrawalsController {
         }
         return R.ok();
     }
+
+    @GetMapping("/user/records")
+    @ApiOperation(value = "查询当前用户的提现记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current",value = "当前页") ,
+            @ApiImplicitParam(name = "size",value = "每页显示的大小") ,
+            @ApiImplicitParam(name = "status",value = "充值的状态") ,
+    })
+    public R<Page<CashWithdrawals>> findUserCashRecharge(@ApiIgnore Page<CashWithdrawals> page ,Byte status){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        Page<CashWithdrawals> cashWithdrawPage = cashWithdrawalsService.findUserCashWithdraw(page ,userId,status) ;
+        return R.ok(cashWithdrawPage) ;
+    }
+
+    @PostMapping("/sell")
+    @ApiOperation(value = "GCN的卖出操作")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "cashSellParam", value = "cashSell的参数")
+    })
+    public R<Object> sell(@RequestBody @Validated CashSellParam cashSellParam) {
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
+        boolean isOk = cashWithdrawalsService.sell(userId, cashSellParam);
+        if (isOk) {
+            return R.ok("提交申请成功");
+        }
+        return R.fail("提交申请失败");
+    }
+
+
+
+
 
 }

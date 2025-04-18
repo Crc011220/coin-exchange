@@ -132,4 +132,13 @@ public class Account {
     @TableField(value = "created")
     @ApiModelProperty(value="创建时间")
     private Date created;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="卖出价格")
+    private BigDecimal sellRate;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value="买入价格")
+    private BigDecimal buyRate;
+
 }

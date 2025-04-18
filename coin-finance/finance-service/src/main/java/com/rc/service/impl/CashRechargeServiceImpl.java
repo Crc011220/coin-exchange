@@ -1,5 +1,7 @@
 package com.rc.service.impl;
 
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.util.RandomUtil;
 import com.alicp.jetcache.AutoReleaseLock;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
@@ -9,23 +11,32 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rc.domain.CashRecharge;
 import com.rc.domain.CashRechargeAuditRecord;
+import com.rc.domain.Coin;
+import com.rc.domain.Config;
+import com.rc.dto.AdminBankDto;
 import com.rc.dto.UserDto;
+import com.rc.feign.AdminBankServiceFeign;
 import com.rc.feign.UserServiceFeign;
 import com.rc.mapper.CashRechargeAuditRecordMapper;
 import com.rc.mapper.CashRechargeMapper;
+import com.rc.model.CashParam;
 import com.rc.service.AccountService;
 import com.rc.service.CashRechargeService;
+import com.rc.service.CoinService;
+import com.rc.service.ConfigService;
+import com.rc.vo.CashTradeVo;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -44,6 +55,18 @@ public class CashRechargeServiceImpl extends ServiceImpl<CashRechargeMapper, Cas
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private ConfigService configService;
+
+    @Autowired
+    private AdminBankServiceFeign adminBankServiceFeign;
+
+    @Autowired
+    private Snowflake snowflake;
+
+    @Autowired
+    private CoinService coinService;
     /**
      * 条件分页查询
      *
@@ -151,5 +174,102 @@ public class CashRechargeServiceImpl extends ServiceImpl<CashRechargeMapper, Cas
             }
         });
     }
+
+    @Override
+    public Page<CashRecharge> findUserCashRecharge(Page<CashRecharge> page, Long userId, Byte status) {
+        return page(page, new LambdaQueryWrapper<CashRecharge>()
+                .eq(CashRecharge::getUserId, userId)
+                .eq(status != null, CashRecharge::getStatus, status)
+        );
+    }
+
+
+    @Override
+    public CashTradeVo buy(Long userId, CashParam cashParam) {
+        //1 校验现金参数
+        checkCashParam(cashParam);
+        // 2 查询我们公司的银行卡 (远程调用)
+        List<AdminBankDto> allAdminBanks = adminBankServiceFeign.getAllAdminBanks();
+        // 仅仅需要一张银行卡
+        AdminBankDto adminBankDto = loadbalancer(allAdminBanks);
+        //3 生成订单号/参考号
+        String orderNo = String.valueOf(snowflake.nextId());
+        String remark = RandomUtil.randomNumbers(6);
+
+        Coin coin = coinService.getById(cashParam.getCoinId()); // 获取币种
+
+        if (coin == null) {
+            throw new IllegalArgumentException("coinId不存在");
+        }
+        //cashParam.getMum()这是前端给我们的金额,前端可能因为浏览器的缓存导致价格不准确,因此,我们需要在后台进行计算
+        // 费率查询
+        Config buyGCNRate = configService.getConfigByCode("CNY2USDT"); //人民币充值GCN换算费率 Config表中
+        // 实际金额 = 数量*费率
+        BigDecimal realMum = cashParam.getMum().multiply(new BigDecimal(buyGCNRate.getValue())).setScale(2, RoundingMode.HALF_UP);
+        // 4 在数据库里面插入一条充值的记录
+
+
+        CashRecharge cashRecharge = new CashRecharge();
+        cashRecharge.setUserId(userId);
+        // 银行卡的信息
+        cashRecharge.setName(adminBankDto.getName());
+        cashRecharge.setBankName(adminBankDto.getBankName());
+        cashRecharge.setBankCard(adminBankDto.getBankCard());
+
+        cashRecharge.setTradeno(orderNo);
+        cashRecharge.setCoinId(cashParam.getCoinId());
+        cashRecharge.setCoinName(coin.getName());
+        cashRecharge.setNum(cashParam.getNum());
+        cashRecharge.setMum(realMum); // 实际的交易金额
+        cashRecharge.setRemark(remark);
+        cashRecharge.setFee(BigDecimal.ZERO);
+        cashRecharge.setType("linepay"); // 在线支付
+        cashRecharge.setStatus((byte) 0); // 待审核
+        cashRecharge.setStep((byte) 1);// 第一步
+
+        boolean save = save(cashRecharge);
+        if (save) {
+            // 5 返回我们的成功对象
+            CashTradeVo cashTradeVo = new CashTradeVo();
+            // 我们收户的银行卡信息
+            cashTradeVo.setAmount(realMum);
+            cashTradeVo.setStatus((byte)0);
+            cashTradeVo.setName(adminBankDto.getName());
+            cashTradeVo.setBankName(adminBankDto.getBankName());
+            cashTradeVo.setBankCard(adminBankDto.getBankCard());
+            cashTradeVo.setRemark(remark);
+            return cashTradeVo;
+        }
+        return null;
+    }
+
+    /**
+     * 从一个list 里面随机选一个出来 一张银行卡交易过多会产生风险 所以要一个list
+     * @param allAdminBanks
+     * @return
+     */
+    private AdminBankDto loadbalancer(List<AdminBankDto> allAdminBanks) {
+        if (CollectionUtils.isEmpty(allAdminBanks)) {
+            throw new RuntimeException("没有发现可用的银行卡");
+        }
+        int size = allAdminBanks.size();
+        if (size == 1) {
+            return allAdminBanks.get(0);
+        }
+        Random random = new Random();
+        return allAdminBanks.get(random.nextInt(size));
+    }
+
+    private void checkCashParam(CashParam cashParam) {
+        @NotNull BigDecimal num = cashParam.getNum(); // 现金充值的数量
+        Config withDrowConfig = configService.getConfigByCode("WITHDRAW_BASEAMOUNT"); // 最小提现数量 Config表中100
+        @NotBlank String value = withDrowConfig.getValue();
+        BigDecimal minRecharge = new BigDecimal(value);
+        if (num.compareTo(minRecharge) < 0) {
+            throw new IllegalArgumentException("充值数量太小");
+        }
+    }
+
+
 }
 

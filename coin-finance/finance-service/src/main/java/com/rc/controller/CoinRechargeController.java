@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class CoinRechargeController {
     private CoinRechargeService coinRechargeService;
 
     @GetMapping("/records")
-    @ApiOperation(value = "条件分页查询")
+    @ApiOperation(value = "分页条件查询充值记录")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "current", value = "当前页"),
             @ApiImplicitParam(name = "size", value = "每页显示的条数"),
@@ -140,4 +141,20 @@ public class CoinRechargeController {
             }
         }
     }
+
+    @GetMapping("/user/record")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current" ,value = "当前页") ,
+            @ApiImplicitParam(name = "size" ,value = "显示的条数") ,
+            @ApiImplicitParam(name = "coinId" ,value = "币种的Id") ,
+
+    })
+    @ApiOperation(value = "分页查询用户某种币的Id")
+    public R<Page<CoinRecharge>> findUserCoinRecharge(@ApiIgnore Page<CoinRecharge> page ,Long coinId){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        Page<CoinRecharge> pageData = coinRechargeService.findUserCoinRecharge(page ,coinId, userId) ;
+        return R.ok(pageData) ;
+    }
+
+
 }

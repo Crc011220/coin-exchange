@@ -73,4 +73,11 @@ public class CoinWithdrawServiceImpl extends ServiceImpl<CoinWithdrawMapper, Coi
         }
         return pageData ;
     }
+
+    @Override
+    public Page<CoinWithdraw> findUserCoinWithdraw(Page<CoinWithdraw> page, Long coinId, Long userId) {
+        return page(page,new LambdaQueryWrapper<CoinWithdraw>()
+                .eq(coinId!=null,CoinWithdraw::getCoinId,coinId)
+                .eq(CoinWithdraw::getUserId ,userId));
+    }
 }

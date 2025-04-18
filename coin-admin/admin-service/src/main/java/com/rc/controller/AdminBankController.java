@@ -2,6 +2,8 @@ package com.rc.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.AdminBank;
+import com.rc.dto.AdminBankDto;
+import com.rc.feign.AdminBankServiceFeign;
 import com.rc.model.R;
 import com.rc.service.AdminBankService;
 import io.swagger.annotations.Api;
@@ -14,10 +16,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/adminBanks")
 @Api(tags = "公司银行卡的配置")
-public class AdminBankController {
+public class AdminBankController implements AdminBankServiceFeign {
 
     @Autowired
     private AdminBankService adminBankService;
@@ -84,5 +88,9 @@ public class AdminBankController {
         return R.fail("状态修改失败") ;
     }
 
+    @Override
+    public List<AdminBankDto> getAllAdminBanks() {
+        return adminBankService.getAllAdminBanks();
+    }
 }
 

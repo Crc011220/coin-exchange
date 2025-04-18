@@ -21,4 +21,12 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
                 .like(StringUtils.isNotEmpty(code), Config::getCode, code)
         );
     }
+
+    // 根据code查询费率
+    @Override
+    public Config getConfigByCode(String code) {
+        return getOne(new LambdaQueryWrapper<Config>()
+                .eq(Config::getCode, code)
+        );
+    }
 }

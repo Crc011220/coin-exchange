@@ -13,4 +13,7 @@ public interface UserBankService extends IService<UserBank>{
 
     // 绑定用户的银行卡
     boolean bindBank(Long userId, UserBank userBank);
+
+    // 根据用户id找到当前用户的银行卡
+    UserBank getCurrentUserBank(Long userId);
 }

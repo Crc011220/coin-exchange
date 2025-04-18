@@ -53,4 +53,13 @@ public class UserBankServiceImpl extends ServiceImpl<UserBankMapper, UserBank> i
         userBank.setUserId(userId);
         return save(userBank);
     }
+
+    @Override
+    public UserBank getCurrentUserBank(Long userId) {
+
+        return getOne(new LambdaQueryWrapper<UserBank>()
+                .eq(userId != null, UserBank::getUserId, userId)
+                .eq(UserBank::getStatus, 1));
+
+    }
 }

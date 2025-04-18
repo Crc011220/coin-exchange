@@ -13,4 +13,7 @@ public interface CoinService extends IService<Coin>{
 
     //通过状态查询所有的币种信息
     List<Coin> getCoinsByStatus(Byte status);
+
+    // 通过货币名称来查询货币
+    Coin getCoinByCoinName(String coinName);
 }

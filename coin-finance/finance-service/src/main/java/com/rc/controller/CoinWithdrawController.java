@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -138,5 +139,19 @@ public class CoinWithdrawController {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+    @GetMapping("/user/record")
+    @ApiOperation(value = "查询用户提现记录")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "size", value = "当前页面"),
+            @ApiImplicitParam(name = "current", value = "每页显示条数"),
+            @ApiImplicitParam(name = "coinId", value = "币种id")
+
+    })
+    public R<Page<CoinWithdraw>> findUserCoinWithdraw(@ApiIgnore Page<CoinWithdraw> page, Long coinId){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        Page<CoinWithdraw> pageData = coinWithdrawService.findUserCoinWithdraw(page, coinId, userId) ;
+        return R.ok(pageData) ;
     }
 }

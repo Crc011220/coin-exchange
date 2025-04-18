@@ -7,4 +7,7 @@ public interface ConfigService extends IService<Config>{
 
     // 条件分页查询 通过规格类型，规则名称，规则代码
     Page<Config> findByPage(Page<Config> page, String type, String name, String code);
+
+    // 根据code查询费率
+    Config getConfigByCode(String code);
 }
