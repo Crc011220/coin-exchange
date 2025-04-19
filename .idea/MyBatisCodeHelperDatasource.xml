@@ -7,10 +7,10 @@
         <option name="generateService" value="true" />
         <option name="generateServiceInterface" value="true" />
         <option name="javaMapperPackage" value="com.rc.mapper" />
-        <option name="javaMapperPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
+        <option name="javaMapperPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
         <option name="javaModelPackage" value="com.rc.domain" />
-        <option name="javaModelPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/java" />
-        <option name="lastDatabaseCrudChooseModuleName" value="finance-service" />
+        <option name="javaModelPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
+        <option name="lastDatabaseCrudChooseModuleName" value="exchange-service" />
         <option name="lombokAllArgConstructor" value="true" />
         <option name="lombokDataAnnotation" value="true" />
         <option name="lombokNoArgsConstructor" value="true" />
@@ -31,6 +31,22 @@
                   <option name="javaServicePath" value="$PROJECT_DIR$/coin-admin/admin-service/src/main/java" />
                   <option name="xmlPackage" value="mappers" />
                   <option name="xmlPath" value="$PROJECT_DIR$/coin-admin/admin-service/src/main/resources" />
+                </UserPackageAndPathInfoByModule>
+              </value>
+            </entry>
+            <entry key="exchange-service">
+              <value>
+                <UserPackageAndPathInfoByModule>
+                  <option name="javaMapperPackage" value="com.rc.mapper" />
+                  <option name="javaMapperPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
+                  <option name="javaModelPacakge" value="com.rc.domain" />
+                  <option name="javaModelPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
+                  <option name="javaServiceInterfacePackage" value="com.rc.service" />
+                  <option name="javaServiceInterfacePath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
+                  <option name="javaServicePackage" value="com.rc.service.impl" />
+                  <option name="javaServicePath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/java" />
+                  <option name="xmlPackage" value="mappers" />
+                  <option name="xmlPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/resources" />
                 </UserPackageAndPathInfoByModule>
               </value>
             </entry>
@@ -251,6 +267,16 @@
                 </TableGenerateConfig>
               </value>
             </entry>
+            <entry key="coin-exchange:entrust_order">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="EntrustOrder" />
+                  <option name="moduleName" value="exchange-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
             <entry key="coin-exchange:forex_account">
               <value>
                 <TableGenerateConfig>
@@ -297,6 +323,16 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="ForexOpenPositionOrder" />
                   <option name="moduleName" value="finance-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:market">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="Market" />
+                  <option name="moduleName" value="exchange-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -406,6 +442,36 @@
                   <option name="generatedKey" value="id" />
                   <option name="javaModelName" value="SysUserRole" />
                   <option name="moduleName" value="admin-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:trade_area">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="TradeArea" />
+                  <option name="moduleName" value="exchange-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:turnover_order">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="TurnoverOrder" />
+                  <option name="moduleName" value="exchange-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
+            <entry key="coin-exchange:turnover_record">
+              <value>
+                <TableGenerateConfig>
+                  <option name="generatedKey" value="id" />
+                  <option name="javaModelName" value="TurnoverRecord" />
+                  <option name="moduleName" value="exchange-service" />
                   <option name="useActualColumnName" value="false" />
                 </TableGenerateConfig>
               </value>
@@ -522,7 +588,7 @@
         <option name="useSwagger" value="true" />
         <option name="userMybatisPlus" value="true" />
         <option name="xmlMapperPackage" value="mappers" />
-        <option name="xmlMapperPath" value="$PROJECT_DIR$/coin-finance/finance-service/src/main/resources" />
+        <option name="xmlMapperPath" value="$PROJECT_DIR$/exchange-engine/exchange-service/src/main/resources" />
       </ProjectProfile>
     </option>
   </component>
