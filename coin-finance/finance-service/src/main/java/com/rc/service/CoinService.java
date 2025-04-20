@@ -3,6 +3,7 @@ package com.rc.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.Coin;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.rc.dto.CoinDto;
 
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface CoinService extends IService<Coin>{
 
     // 通过货币名称来查询货币
     Coin getCoinByCoinName(String coinName);
+
+    // 通过id查询货币
+    List<CoinDto> findList(List<Long> coinIds);
 }

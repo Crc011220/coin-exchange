@@ -28,7 +28,16 @@ public class TokenCheckFilter implements GlobalFilter, Ordered {
     private StringRedisTemplate redisTemplate;
 
     // 不需要token 能访问的url
-    @Value("${no.token.access.urls:/admin/login,/admin/validate/code,/user/gt/register,/user/login,/user/users/register,/user/sms/sendTo,/user/users/setPassword}")
+    @Value("${no.token.access.urls:" +
+            "/admin/login," +
+            "/admin/validate/code," +
+            "/user/gt/register," +
+            "/user/login," +
+            "/user/users/register," +
+            "/user/sms/sendTo," +
+            "/user/users/setPassword," +
+            "/admin/webConfigs/banners," +
+            "/exchange/tradeAreas/markets}")
     private Set<String> noTokenAccessUrls;
 
 

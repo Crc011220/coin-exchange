@@ -113,5 +113,24 @@ public class NoticeController {
 
     }
 
+    @GetMapping("/simple")
+    @ApiOperation(value = "用于给前台:查询所有启用的公告")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "当前页"),
+            @ApiImplicitParam(name = "size", value = "每页显示的条数"),
+    })
+    public R<Page<Notice>> findNoticeForSimple(@ApiIgnore Page<Notice> page){
+        return R.ok(noticeService.findNoticeForSimple(page)) ;
+    }
+
+    @GetMapping("/simple/{id}")
+    @ApiOperation(value = "用于给前台:查询一个公告的简单信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "公告的id")
+    })
+    public R<Notice> noticeSimpleInfo(@PathVariable Long id){
+        return R.ok(noticeService.getById(id)) ;
+    }
+
 }
 

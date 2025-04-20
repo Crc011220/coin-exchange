@@ -51,4 +51,11 @@ public class WorkIssueServiceImpl extends ServiceImpl<WorkIssueMapper, WorkIssue
         return pageData;
     }
 
+    @Override
+    public Page<WorkIssue> getIssueList(Page<WorkIssue> page, Long userId) {
+        return page(page, new LambdaQueryWrapper<WorkIssue>()
+                .eq(WorkIssue::getUserId, userId)
+                );
+    }
+
 }

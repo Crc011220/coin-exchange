@@ -31,6 +31,12 @@ spring:
             - Path=/finance/**
           filters:
             - StripPrefix=1 # 当前端访问/finance/xx去掉finance
+        - id: exchange-service_router
+          uri: lb://exchange-service   # 转发到那个目的地
+          predicates:
+            - Path=/exchange/**
+          filters:
+            - StripPrefix=1
     #        - id: test_router
 #          uri: http://www.google.com
 #          predicates:
@@ -57,3 +63,4 @@ spring:
     host: redis-server
     port: 6380
     password:
+

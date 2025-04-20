@@ -5,17 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.WorkIssue;
 import com.rc.model.R;
 import com.rc.service.WorkIssueService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 @RestController
@@ -59,6 +53,9 @@ public class WorkIssueController {
         // 设置回复人id
         String name = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         workIssue.setAnswerUserId(Long.valueOf(name));
+        workIssue.setAnswerName(name);
+
+        workIssue.setStatus(2); // 已回复
 
         boolean updateById = workIssueService.updateById(workIssue);
         if (updateById) {
@@ -66,6 +63,34 @@ public class WorkIssueController {
         }
         return R.fail("回复失败");
     }
+
+    @GetMapping("/issueList")
+    @ApiOperation(value = "前台查询:分页获取工单列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "current", value = "当前页"),
+            @ApiImplicitParam(name = "size", value = "每页显示的条数"),
+            @ApiImplicitParam(name = "userId", value = "用户id"),
+    })
+    public R<Page<WorkIssue>> getIssueList(Page<WorkIssue> page){
+        String name = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        return R.ok(workIssueService.getIssueList(page, Long.valueOf(name))) ;
+    }
+
+    @PostMapping("/addWorkIssue")
+    @ApiOperation(value = "前台添加工单")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "workIssue", value = "workIssue json"),
+    })
+    public R addIssue(@RequestBody WorkIssue workIssue){
+        workIssue.setUserId(Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()));
+        workIssue.setStatus(1);
+        boolean save = workIssueService.save(workIssue);
+        if (save){
+            return R.ok() ;
+        }
+        return R.fail("添加失败") ;
+    }
+
 
 }
 

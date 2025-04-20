@@ -2,14 +2,19 @@ package com.rc.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.rc.dto.CoinDto;
+import com.rc.mappers.CoinMappersDto;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rc.mapper.CoinMapper;
 import com.rc.domain.Coin;
 import com.rc.service.CoinService;
+import org.springframework.util.CollectionUtils;
+
 @Service
 public class CoinServiceImpl extends ServiceImpl<CoinMapper, Coin> implements CoinService{
 
@@ -32,5 +37,15 @@ public class CoinServiceImpl extends ServiceImpl<CoinMapper, Coin> implements Co
     @Override
     public Coin getCoinByCoinName(String coinName) {
         return getOne(new LambdaQueryWrapper<Coin>().eq(Coin::getName, coinName));
+    }
+
+    @Override
+    public List<CoinDto> findList(List<Long> coinIds) {
+        List<Coin> coins = super.listByIds(coinIds);
+        if (CollectionUtils.isEmpty(coins)){
+            return Collections.emptyList();
+        }
+
+        return CoinMappersDto.INSTANCE.toConvertDto(coins);
     }
 }

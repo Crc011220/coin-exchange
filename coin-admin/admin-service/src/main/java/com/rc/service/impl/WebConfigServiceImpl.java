@@ -20,4 +20,14 @@ public class WebConfigServiceImpl extends ServiceImpl<WebConfigMapper, WebConfig
                 .eq(StringUtils.isNotEmpty(type), WebConfig::getType, type)
         );
     }
+
+    @Override
+    public List<WebConfig> getBanners() {
+
+        return list(new LambdaQueryWrapper<WebConfig>()
+                .eq(WebConfig::getType, "WEB_BANNER")
+                .eq(WebConfig::getStatus, 1)
+                .orderByDesc(WebConfig::getSort)
+        );
+    }
 }

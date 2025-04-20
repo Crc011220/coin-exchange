@@ -10,11 +10,13 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @Api(tags = "webConfig的控制器")
@@ -86,6 +88,14 @@ public class WebConfigController {
       }
       return R.fail("删除失败") ;
     }
+
+    @GetMapping(value = "/banners")
+    @ApiOperation(value = "前台:查询所有的banner")
+    public R<List<WebConfig>> banners(){
+        List<WebConfig> webConfigs = webConfigService.getBanners() ;
+        return R.ok(webConfigs) ;
+    }
+
 
 }
 

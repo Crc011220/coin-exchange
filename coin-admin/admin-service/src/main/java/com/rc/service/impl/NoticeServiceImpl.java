@@ -22,4 +22,12 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
                 .eq(status!= null, Notice::getStatus, status)
                 );
     }
+
+    @Override
+    public Page<Notice> findNoticeForSimple(Page<Notice> page) {
+        return page(page, new LambdaQueryWrapper<Notice>()
+                .eq(Notice::getStatus, 1)
+                .orderByDesc(Notice::getSort)
+        );
+    }
 }
