@@ -17,4 +17,7 @@ public interface TradeAreaService extends IService<TradeArea>{
 
     // 查询交易区域以及区域下的市场
     List<TradeAreaMarketVo> findTradeAreaMarkets();
+
+    // 查询用户收藏的交易区域以及区域下的市场
+    List<TradeAreaMarketVo> findFavoriteTradeAreaMarkets(Long userId);
 }

@@ -36,6 +36,11 @@ public class MarketServiceImpl extends ServiceImpl<MarketMapper, Market> impleme
     }
 
     @Override
+    public Market getMarketBySymbol(String symbol) {
+        return getOne(new LambdaQueryWrapper<Market>().eq(Market::getSymbol, symbol));
+    }
+
+    @Override
     public boolean save(Market market){
         log.info("开始新增市场信息：{}", JSON.toJSONString(market));
         Long buyCoinId = market.getBuyCoinId(); // 买方币种ID

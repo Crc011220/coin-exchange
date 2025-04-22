@@ -7,6 +7,7 @@ import com.rc.domain.Config;
 import com.rc.service.AccountDetailService;
 import com.rc.service.CoinService;
 import com.rc.service.ConfigService;
+import com.rc.vo.UserTotalAccountVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -17,6 +18,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rc.domain.Account;
 import com.rc.mapper.AccountMapper;
 import com.rc.service.AccountService;
+import org.springframework.util.CollectionUtils;
+
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService{
 
@@ -163,5 +166,15 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             );
             accountDetailService.save(accountDetail);
         }
+    }
+
+    @Override
+    public UserTotalAccountVo getUserTotalAccount(Long userId) {
+        List<Account> list = list(new LambdaQueryWrapper<Account>()
+                .eq(Account::getUserId, userId));
+        if (CollectionUtils.isEmpty(list)){
+            return null;
+        }
+        return null;
     }
 }

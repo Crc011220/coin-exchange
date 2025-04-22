@@ -543,6 +543,15 @@
                 </TableGenerateConfig>
               </value>
             </entry>
+            <entry key="coin-exchange:user_favorite_market">
+              <value>
+                <TableGenerateConfig>
+                  <option name="javaModelName" value="UserFavoriteMarket" />
+                  <option name="moduleName" value="exchange-service" />
+                  <option name="useActualColumnName" value="false" />
+                </TableGenerateConfig>
+              </value>
+            </entry>
             <entry key="coin-exchange:user_login_log">
               <value>
                 <TableGenerateConfig>

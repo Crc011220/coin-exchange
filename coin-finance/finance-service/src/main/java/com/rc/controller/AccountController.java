@@ -3,6 +3,7 @@ package com.rc.controller;
 import com.rc.domain.Account;
 import com.rc.model.R;
 import com.rc.service.AccountService;
+import com.rc.vo.UserTotalAccountVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -32,6 +33,15 @@ public class AccountController {
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
         Account account = accountService.findByUserAndCoin(userId,coinName) ;
         return R.ok(account) ;
+    }
+
+
+    @GetMapping("/total")
+    @ApiOperation(value = "获取当前用户的总资产情况")
+    public R<UserTotalAccountVo> total(){
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString()) ;
+        UserTotalAccountVo userTotalAccount = accountService.getUserTotalAccount(userId);
+        return R.ok(userTotalAccount) ;
     }
 }
 

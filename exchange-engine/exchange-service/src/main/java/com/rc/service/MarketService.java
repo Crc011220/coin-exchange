@@ -13,4 +13,7 @@ public interface MarketService extends IService<Market>{
 
     // 根据交易区域ID查询交易市场
     List<Market> getMarketsByTradeAreaId(Long id);
+
+    // 根据交易对查询交易市场
+    Market getMarketBySymbol(String symbol);
 }
