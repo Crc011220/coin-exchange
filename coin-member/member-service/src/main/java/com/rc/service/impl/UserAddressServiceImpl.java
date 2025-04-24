@@ -17,4 +17,18 @@ public class UserAddressServiceImpl extends ServiceImpl<UserAddressMapper, UserA
         return page(page, new LambdaQueryWrapper<UserAddress>()
                 .eq(userId != null, UserAddress::getUserId, userId));
     }
+
+    @Override
+    public List<UserAddress> getUserAddressByUserId(Long userId) {
+        return list(new LambdaQueryWrapper<UserAddress>()
+                .eq(UserAddress::getUserId,userId)
+                .orderByDesc(UserAddress::getCreated));
+    }
+
+    @Override
+    public UserAddress getUserAddressByUserIdAndCoinId(String userId, Long coinId) {
+        return getOne(new LambdaQueryWrapper<UserAddress>()
+                .eq(UserAddress::getUserId, userId)
+                .eq(UserAddress::getCoinId, coinId));
+    }
 }

@@ -4,14 +4,27 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.rc.domain.AccountDetail;
 import com.rc.domain.Coin;
 import com.rc.domain.Config;
+import com.rc.dto.MarketDto;
+import com.rc.feign.MarketServiceFeign;
+import com.rc.mappers.AccountVoMappers;
 import com.rc.service.AccountDetailService;
 import com.rc.service.CoinService;
 import com.rc.service.ConfigService;
+import com.rc.vo.AccountVo;
+import com.rc.vo.SymbolAssetVo;
 import com.rc.vo.UserTotalAccountVo;
+import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -21,6 +34,7 @@ import com.rc.service.AccountService;
 import org.springframework.util.CollectionUtils;
 
 @Service
+@Slf4j
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService{
 
     @Autowired
@@ -31,6 +45,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Autowired
     private ConfigService configService;
+
+    @Autowired
+    private MarketServiceFeign marketServiceFeign;
 
     private Account getCoinAccount(Long coinId, Long userId) {
         return getOne(new LambdaQueryWrapper<Account>()
@@ -170,11 +187,105 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public UserTotalAccountVo getUserTotalAccount(Long userId) {
+        UserTotalAccountVo  userTotalAccountVo = new UserTotalAccountVo();
+        BigDecimal basicCoin = BigDecimal.ZERO; // 用户的总金额
+        BigDecimal basicCoin2Cny = BigDecimal.ONE; // cny和平台币的汇率
+        List<AccountVo> assertList = new ArrayList<>();
         List<Account> list = list(new LambdaQueryWrapper<Account>()
                 .eq(Account::getUserId, userId));
         if (CollectionUtils.isEmpty(list)){
-            return null;
+            userTotalAccountVo.setAssertList(assertList);
+            userTotalAccountVo.setAmount(BigDecimal.ZERO);
+            userTotalAccountVo.setAmountUs(BigDecimal.ZERO);
+            return userTotalAccountVo;
         }
-        return null;
+
+
+        AccountVoMappers Instance = Mappers.getMapper(AccountVoMappers.class);
+        for (Account account : list) {
+            AccountVo accountVo = Instance.toAccountVo(account);
+            Long coinId = account.getCoinId();
+            Coin coin = coinService.getById(coinId);
+
+            if (coin == null || coin.getStatus() == (byte)0) {
+                continue;
+            }
+            accountVo.setCoinName(coin.getName());
+            accountVo.setCoinImgUrl(coin.getImg());
+            accountVo.setCoinType(coin.getType());
+            accountVo.setWithdrawFlag(coin.getWithdrawFlag());
+            accountVo.setRechargeFlag(coin.getRechargeFlag());
+            accountVo.setFeeRate(BigDecimal.valueOf(coin.getRate()));
+            accountVo.setMinFeeNum(coin.getMinFeeNum());
+
+            assertList.add(accountVo);
+            BigDecimal volume = accountVo.getFreezeAmount().add(accountVo.getBalanceAmount());
+            accountVo.setCarryingAmount(volume); // 总账户余额
+
+
+            BigDecimal total = volume.multiply(getCurrentCoinPrice(coinId));
+            basicCoin = basicCoin.add(total);
+        }
+
+        userTotalAccountVo.setAmount(basicCoin.multiply(basicCoin2Cny).setScale(8, RoundingMode.HALF_UP)); // 用户的总金额 人民币
+        userTotalAccountVo.setAmountUs(basicCoin); // 用户的总金额 USDT平台币
+        userTotalAccountVo.setAssertList(assertList);
+
+        return userTotalAccountVo;
     }
+
+
+    @Override
+    public SymbolAssetVo getSymbolAssert(String symbol, Long userId) {
+
+        /**
+         * 远程调用获取市场
+         */
+        MarketDto marketDto = marketServiceFeign.findBySymbol(symbol);
+        SymbolAssetVo symbolAssetVo = new SymbolAssetVo();
+        // 查询报价货币
+        @NotNull Long buyCoinId = marketDto.getBuyCoinId(); // 报价货币的Id
+        Account buyCoinAccount = getCoinAccount(buyCoinId, userId);
+        symbolAssetVo.setBuyAmount(buyCoinAccount.getBalanceAmount());
+        symbolAssetVo.setBuyLockAmount(buyCoinAccount.getFreezeAmount());
+        // 市场里面配置的值
+        symbolAssetVo.setBuyFeeRate(marketDto.getFeeBuy());
+        Coin buyCoin = coinService.getById(buyCoinId);
+        symbolAssetVo.setBuyUnit(buyCoin.getName());
+        // 查询基础汇报
+        @NotBlank Long sellCoinId = marketDto.getSellCoinId();
+        Account coinAccount = getCoinAccount(sellCoinId, userId);
+        symbolAssetVo.setSellAmount(coinAccount.getBalanceAmount());
+        symbolAssetVo.setSellLockAmount(coinAccount.getFreezeAmount());
+        // 市场里面配置的值
+        symbolAssetVo.setSellFeeRate(marketDto.getFeeSell());
+        Coin sellCoin = coinService.getById(sellCoinId);
+        symbolAssetVo.setSellUnit(sellCoin.getName());
+
+        return symbolAssetVo;
+    }
+
+
+    // 获取当前币种的价格
+    private BigDecimal getCurrentCoinPrice(Long coinId) {
+        Config platformCoinId = configService.getConfigByCode("PLATFORM_COIN_ID");
+        if (platformCoinId == null) {
+            throw new IllegalArgumentException("平台币的id不存在, 请联系管理员");
+        }
+        Long basicCoinId = Long.valueOf(platformCoinId.getValue());
+        if (basicCoinId.equals(coinId)) { // 该币就是基础币 1:1兑换
+            return BigDecimal.ONE;
+        }
+        // 不是基础币 需要换算 使用基础币作为报价货币
+        MarketDto marketDto = marketServiceFeign.findBySellAndBuyCoinId(basicCoinId, coinId);
+        // 存在交易对
+        if (marketDto != null) {
+            return marketDto.getOpenPrice();
+        } else{
+            log.info("不存在该交易对, 请联系管理员进行添加");
+            return BigDecimal.ZERO;
+        }
+    }
+
+
 }

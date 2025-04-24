@@ -2,6 +2,7 @@ package com.rc.service;
 
 import com.rc.domain.Account;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.rc.vo.SymbolAssetVo;
 import com.rc.vo.UserTotalAccountVo;
 
 import java.math.BigDecimal;
@@ -52,4 +53,8 @@ public interface AccountService extends IService<Account>{
 
     // 获取当前用户的总资产
     UserTotalAccountVo getUserTotalAccount(Long userId);
+
+    // 统计用户交易对的资产
+    SymbolAssetVo getSymbolAssert(String symbol, Long userId);
+
 }

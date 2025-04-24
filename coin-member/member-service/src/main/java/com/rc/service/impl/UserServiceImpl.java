@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -371,7 +373,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("忘记登录密码后重置{}", JSON.toJSONString(unsetPasswordParam, true));
 
         unsetPasswordParam.check(geetestLib, redisTemplate);
-        String s = stringRedisTemplate.opsForValue().get("SMS:FORGOT_VERIFY:" + unsetPasswordParam.getMobile());
+        String formattedPhone = convertToE164Format(unsetPasswordParam.getMobile());
+
+        String s = stringRedisTemplate.opsForValue().get("SMS:FORGOT_VERIFY:" + formattedPhone);
         if (!unsetPasswordParam.getValidateCode().equals(s)) {
             throw new IllegalArgumentException("验证码错误");
         }
@@ -383,5 +387,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         user.setPassword(new BCryptPasswordEncoder().encode(unsetPasswordParam.getPassword()));
         return updateById(user);
+
+    }
+
+    public static void main(String[] args) {
+        String input = "crc20011220";
+        try {
+            // 获取 MD5 加密实例
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            // 计算哈希值
+            byte[] hashBytes = md.digest(input.getBytes());
+
+            // 将字节数组转换为十六进制字符串
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hashBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            System.out.println("MD5加密结果: " + hexString);
+            System.out.println(new BCryptPasswordEncoder().encode(hexString.toString()));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
     }
 }

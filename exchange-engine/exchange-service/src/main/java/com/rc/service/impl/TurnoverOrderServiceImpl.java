@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.rc.domain.TurnoverOrder;
@@ -26,4 +27,36 @@ public class TurnoverOrderServiceImpl extends ServiceImpl<TurnoverOrderMapper, T
                 .orderByDesc(TurnoverOrder::getCreated)
         );
     }
+
+
+    @Override
+    public List<TurnoverOrder> getBuyTurnoverOrder(Long orderId, Long userId) {
+        return list(new LambdaQueryWrapper<TurnoverOrder>().eq(TurnoverOrder::getOrderId, orderId)
+                .eq(TurnoverOrder::getBuyUserId, userId)
+        );
+    }
+
+
+
+    @Override
+    public List<TurnoverOrder> getSellTurnoverOrder(Long orderId,Long userId) {
+        return list(new LambdaQueryWrapper<TurnoverOrder>().eq(TurnoverOrder::getOrderId, orderId)
+                .eq(TurnoverOrder::getSellUserId, userId)
+        );
+
+    }
+
+
+    @Override
+    public List<TurnoverOrder> findBySymbol(String symbol) {
+        return list(
+                new LambdaQueryWrapper<TurnoverOrder>()
+                        .eq(TurnoverOrder::getSymbol, symbol)
+                        .orderByDesc(TurnoverOrder::getCreated)
+                        .eq(TurnoverOrder::getStatus,1)
+                        .last("limit 60")
+        );
+    }
+
+
 }

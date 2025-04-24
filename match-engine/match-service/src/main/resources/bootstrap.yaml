@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: match-service
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: nacos-server:8848
+      config:
+        file-extension: yaml
+#      去 nacos-server 里面拉取 match-service-dev.yaml
+

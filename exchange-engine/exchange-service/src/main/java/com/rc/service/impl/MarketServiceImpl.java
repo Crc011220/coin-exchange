@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.dto.CoinDto;
+import com.rc.dto.MarketDto;
 import com.rc.feign.CoinServiceFeign;
+import com.rc.mappers.MarketDtoMappers;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
@@ -38,6 +41,18 @@ public class MarketServiceImpl extends ServiceImpl<MarketMapper, Market> impleme
     @Override
     public Market getMarketBySymbol(String symbol) {
         return getOne(new LambdaQueryWrapper<Market>().eq(Market::getSymbol, symbol));
+    }
+
+    @Override
+    public MarketDto findBySellAndBuyCoinId(Long sellCoinId, Long buyCoinId) {
+        LambdaQueryWrapper<Market> eq = new LambdaQueryWrapper<Market>().eq(Market::getBuyCoinId, buyCoinId).eq(Market::getSellCoinId, sellCoinId)
+                .eq(Market::getStatus, 1);
+        Market one = getOne(eq);
+        if (one == null){
+            return null;
+        }
+
+        return MarketDtoMappers.INSTANCE.toMarketDto(one);
     }
 
     @Override
