@@ -5,6 +5,6 @@ import org.springframework.messaging.MessageChannel;
 
 public interface Sink {
 
-    @Input("order.in")
+    @Input("order-in")
     public MessageChannel messageChannel() ;
 }

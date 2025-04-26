@@ -9,7 +9,8 @@ import com.rc.model.Order;
  */
 public class DisruptorTemplate {
 
-    private static final EventTranslatorOneArg<OrderEvent, Order> TRANSLATOR = (event, sequence, input) -> event.setSource(input);
+    private static final EventTranslatorOneArg<OrderEvent, Order> TRANSLATOR =
+            (event, sequence, input) -> event.setSource(input);
     private final RingBuffer<OrderEvent> ringBuffer;
 
     public DisruptorTemplate(RingBuffer<OrderEvent> ringBuffer) {

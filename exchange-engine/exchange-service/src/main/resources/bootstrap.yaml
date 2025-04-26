@@ -6,6 +6,15 @@ spring:
       server-addr: nacos-server:8848
       config:
         file-extension: yaml
+    stream:
+      rocketmq:
+        binder:
+          name-server: rocket-server:9876
+        binders:
+          order-out: { consumer.orderly: true }
+      bindings:
+        order-out: { destination: order-in, content-type: application/plain }
+
   profiles:
     active: dev
 # 拉取的配置文件的dataID =  exchange-service-dev.yaml

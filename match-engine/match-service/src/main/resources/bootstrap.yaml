@@ -8,5 +8,25 @@ spring:
       server-addr: nacos-server:8848
       config:
         file-extension: yaml
-#      去 nacos-server 里面拉取 match-service-dev.yaml
+    stream:
+      rocketmq:
+        binder:
+          name-server: rocket-server:9876
+        binders:
+          order-in: {consumer.orderly: true}
+      bindings:
+        order-in: {destination: order-in, content-type: application/plain, group: order-group, consumer.maxAttempts: 1}
+  match:
+    symbols:
+      BTCGCN:
+        coinScale: 8
+        baseCoinScale: 8
+      ETHGCN:
+        coinScale: 8
+        baseCoinScale: 8
+      FOFTGCN:
+        coinScale: 8
+        baseCoinScale: 8
 
+
+#      去 nacos-server 里面拉取 match-service-dev.yaml

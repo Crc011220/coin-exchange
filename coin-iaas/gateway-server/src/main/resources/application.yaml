@@ -37,10 +37,6 @@ spring:
             - Path=/exchange/**
           filters:
             - StripPrefix=1
-    #        - id: test_router
-#          uri: http://www.google.com
-#          predicates:
-#            - Path=/test
     sentinel:
       transport:
         dashboard: sentinel-server:8858
