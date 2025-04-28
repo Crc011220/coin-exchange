@@ -31,7 +31,7 @@ public enum OrderDirection {
         this.desc = desc;
     }
 
-    public static OrderDirection getOrderDirection(int code){
+    public static OrderDirection  getOrderDirection(int code){
         OrderDirection[] values = OrderDirection.values();
         for (OrderDirection value : values) {
             if(value.getCode()==code){

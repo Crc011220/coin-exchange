@@ -4,9 +4,9 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 开启Stream的开发
+ * 开启Stream
  */
 @Configuration
-@EnableBinding(Sink.class) //
+@EnableBinding({Sink.class, Source.class})
 public class RocketStreamConfig {
 }

@@ -43,6 +43,12 @@ public class OrderBooks {
      */
     private int baseCoinScale;
 
+    // 买方交易盘口
+    private TradePlate buyTradePlate;
+
+    // 卖方交易盘口
+    private TradePlate sellTradePlate;
+
 
     /**
      * 日期格式器
@@ -108,6 +114,13 @@ public class OrderBooks {
         }
         // 添加到水平的订单里面
         mergeOrder.add(order);
+
+        if (order.getOrderDirection() == OrderDirection.BUY.getCode()) {
+            buyTradePlate.add(order);
+        } else {
+            sellTradePlate.add(order);
+        }
+
     }
 
     /**
@@ -131,9 +144,16 @@ public class OrderBooks {
             }
         }
         // 订单移除成功后，需要判断，移除此订单后，是否要移除之前的二叉树结点
-        if (mergeOrder.size() <= 0) { //O(1)
+        if (mergeOrder.size() <= 0) {
             limitPriceMap.remove(order.getPrice());
         }
+
+        if (order.getOrderDirection() == OrderDirection.BUY.getCode()) {
+            buyTradePlate.remove(order);
+        } else {
+            sellTradePlate.remove(order);
+        }
+
     }
 
 

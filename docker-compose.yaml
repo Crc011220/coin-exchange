@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "YourPassWord"
+    command:
+      --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis
+    ports:
+      - "6380:6379"
+    command: ["redis-server", "--requirepass", "your-redis-password"]
+
+  namesrv:
+    image: rocketmqinc/rocketmq
+    ports:
+      - "9876:9876"
+    environment:
+      MAX_POSSIBLE_HEAP: "100000000"
+    command: ["sh", "mqnamesrv"]
+
+  broker:
+    image: rocketmqinc/rocketmq:4.4.0
+    ports:
+      - "10911:10911"
+      - "10909:10909"
+    volumes:
+      - /usr/local/rocketmq/broker.conf:/opt/rocketmq-4.4.0/conf/broker.conf
+    environment:
+      NAMESRV_ADDR: "namesrv:9876"
+      MAX_POSSIBLE_HEAP: "200000000"
+    links:
+      - namesrv:namesrv
+    command: ["sh", "mqbroker", "-c", "/opt/rocketmq-4.4.0/conf/broker.conf"]
+
+  rocketmq-console:
+    image: styletang/rocketmq-console-ng
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=121.40.140.138:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "your-mongo-password"
+    command: ["--auth"]
+
+  nacos:
+    image: nacos/nacos-server:1.1.4
+    ports:
+      - "8848:8848"
+    environment:
+      MODE: "standalone"
+
+  sentinel:
+    image: bladex/sentinel-dashboard
+    ports:
+      - "8858:8858"
+
+  seata-server:
+    image: seataio/seata-server
+    ports:
+      - "8091:8091"
+    environment:
+      SEATA_IP: "your_vm_ip"

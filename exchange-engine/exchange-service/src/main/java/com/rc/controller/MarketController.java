@@ -6,6 +6,7 @@ import com.rc.domain.Market;
 import com.rc.domain.TurnoverOrder;
 import com.rc.dto.MarketDto;
 import com.rc.feign.MarketServiceFeign;
+import com.rc.feign.OrderBooksFeignClient;
 import com.rc.mappers.MarketDtoMappers;
 import com.rc.model.R;
 import com.rc.service.MarketService;
@@ -37,6 +38,9 @@ public class MarketController implements MarketServiceFeign {
 
     @Autowired
     private TurnoverOrderService turnoverOrderService;
+
+    @Autowired
+    private OrderBooksFeignClient orderBooksFeignClient;
 
     @GetMapping
     @ApiOperation(value = "分页查询交易市场")
@@ -124,13 +128,11 @@ public class MarketController implements MarketServiceFeign {
         DepthsVo depthsVo = new DepthsVo();
         depthsVo.setCnyPrice(market.getOpenPrice()); // CNY的价格
         depthsVo.setPrice(market.getOpenPrice()); // GCN的价格
-//        Map<String, List<DepthItemVo>> depthMap = orderBooksFeignClient.querySymbolDepth(symbol);
-//        if (!CollectionUtils.isEmpty(depthMap)) {
-//            depthsVo.setAsks(depthMap.get("asks"));
-//            depthsVo.setBids(depthMap.get("bids"));
-//        }
-        depthsVo.setAsks(Arrays.asList(new DepthItemVo(BigDecimal.valueOf(7.000000), BigDecimal.valueOf(100)), new DepthItemVo(BigDecimal.valueOf(6.99990), BigDecimal.valueOf(200))));
-        depthsVo.setBids(Arrays.asList(new DepthItemVo(BigDecimal.valueOf(7.000000), BigDecimal.valueOf(100)), new DepthItemVo(BigDecimal.valueOf(6.99990), BigDecimal.valueOf(200))));
+        Map<String, List<DepthItemVo>> depthMap = orderBooksFeignClient.getDepth(symbol);
+        if (!CollectionUtils.isEmpty(depthMap)) {
+            depthsVo.setAsks(depthMap.get("asks"));
+            depthsVo.setBids(depthMap.get("bids"));
+        }
         return R.ok(depthsVo);
     }
 

@@ -16,6 +16,9 @@ spring:
           order-in: {consumer.orderly: true}
       bindings:
         order-in: {destination: order-in, content-type: application/plain, group: order-group, consumer.maxAttempts: 1}
+        trade-plate-out: {destination: trade-plate-out, content-type: application/plain}
+        completed-order-out: {destination: completed-order-out, content-type: application/plain}
+        exchange-trades-out: {destination: exchange-trades-out, content-type: application/plain}
   match:
     symbols:
       BTCGCN:

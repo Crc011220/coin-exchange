@@ -89,8 +89,7 @@ public class Order implements Serializable {
     private List<OrderDetail> details;
 
     public boolean isCompleted() {
-       //TODO
-        return false ;
+        return amount.compareTo(tradedAmount) <= 0;
     }
 }
 
