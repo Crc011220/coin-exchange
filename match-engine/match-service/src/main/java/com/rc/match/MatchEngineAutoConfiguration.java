@@ -31,6 +31,7 @@ public class MatchEngineAutoConfiguration {
         for (Map.Entry<String, MatchEngineProperties.CoinScale> entry : entries) {
             String symbol = entry.getKey();
             MatchEngineProperties.CoinScale value = entry.getValue();
+
             OrderBooks orderBooks;
             if (value != null) {
                 orderBooks = new OrderBooks(symbol, value.getCoinScale(), value.getBaseCoinScale());

@@ -42,7 +42,7 @@ public class MatchController implements OrderBooksFeignClient {
     }
 
     @Override
-    public Map<String, List<DepthItemVo>> getDepth(@RequestParam(required = true) String symbol) {
+    public Map<String, List<DepthItemVo>> getDepth(@RequestParam() String symbol) {
         Map<String, List<DepthItemVo>> depths = new HashMap<>();
         for (EventHandler<OrderEvent> eventHandler : handler) {
             OrderEventHandler orderEventHandler = (OrderEventHandler) eventHandler;

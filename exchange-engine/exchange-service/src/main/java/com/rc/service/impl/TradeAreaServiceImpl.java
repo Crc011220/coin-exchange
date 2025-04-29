@@ -55,7 +55,9 @@ public class TradeAreaServiceImpl extends ServiceImpl<TradeAreaMapper, TradeArea
 
     @Override
     public List<TradeAreaMarketVo> findTradeAreaMarkets() {
-        List<TradeArea> list = list(new LambdaQueryWrapper<TradeArea>().eq(TradeArea::getStatus, 1).orderByAsc(TradeArea::getSort));
+        List<TradeArea> list = list(new LambdaQueryWrapper<TradeArea>().eq(TradeArea::getStatus, 1)
+                .orderByAsc(TradeArea::getSort));
+
         if (CollectionUtils.isEmpty(list)){
             return Collections.emptyList();
         }
@@ -125,8 +127,8 @@ public class TradeAreaServiceImpl extends ServiceImpl<TradeAreaMapper, TradeArea
         tradeMarketVo.setSellFeeRate(market.getFeeSell()); // 卖出手续费率
         tradeMarketVo.setBuyFeeRate(market.getFeeBuy()); // 买入手续费率
 
+        tradeMarketVo.setPriceScale(market.getPriceScale()); // 价格小数位数
         tradeMarketVo.setNumScale(market.getNumScale()); // 数量小数位数
-
 
         tradeMarketVo.setSort(market.getSort()); // 排序
 

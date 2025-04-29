@@ -1,5 +1,6 @@
 package com.rc.match.impl;
 
+import com.rc.domain.ExchangeTrade;
 import com.rc.enums.OrderDirection;
 import com.rc.match.MatchService;
 import com.rc.match.MatchServiceFactory;
@@ -9,6 +10,7 @@ import com.rc.rocket.Source;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
@@ -40,6 +42,16 @@ public class LimitPriceMatchServiceImpl implements MatchService, InitializingBea
       // order价格校验
       if(order.getPrice().compareTo(BigDecimal.ZERO) <= 0){
           log.error("订单价格错误");
+          return;
+      }
+
+      if (order.getCancelOrder()) {
+          orderBooks.cancelOrder(order);
+          Message<String> message = MessageBuilder
+                  .withPayload(order.getOrderId())
+                  .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
+                  .build();
+          source.cancelOrderOut().send(message);
           return;
       }
 
@@ -105,7 +117,10 @@ public class LimitPriceMatchServiceImpl implements MatchService, InitializingBea
       }
 
       if (!completedOrders.isEmpty()) {
+          // 发送已经成交的交易记录
           completedOrdersHandler(completedOrders);
+
+          // 发送盘口数据,更新盘口
           TradePlate tradePlate = order.getOrderDirection() == OrderDirection.BUY.getCode()
                             ? orderBooks.getBuyTradePlate() : orderBooks.getSellTradePlate();
           sendTradePlate(tradePlate);
@@ -115,11 +130,12 @@ public class LimitPriceMatchServiceImpl implements MatchService, InitializingBea
 
     // 发送盘口数据,供以后我们前端的数据更新
     private void sendTradePlate(TradePlate tradePlate) {
-        source.plateOut()
-                .send(MessageBuilder
+        source.plateOut().send(
+                MessageBuilder
                 .withPayload(tradePlate)
                         .setHeader(MessageHeaders.CONTENT_TYPE, MimeTypeUtils.APPLICATION_JSON)
-                        .build());
+                        .build()
+        );
     }
 
     // 订单的完成

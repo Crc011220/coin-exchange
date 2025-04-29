@@ -12,7 +12,6 @@ import java.util.Map;
 @FeignClient(name = "match-service", contextId = "orderBooksFeignClient", configuration = OAuth2FeignConfig.class)
 public interface OrderBooksFeignClient {
 
-
     /**
      * 远程调用深度数据
      * @param symbol 交易对

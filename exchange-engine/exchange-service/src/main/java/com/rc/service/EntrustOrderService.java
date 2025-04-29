@@ -3,6 +3,7 @@ package com.rc.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.rc.domain.EntrustOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.rc.domain.ExchangeTrade;
 import com.rc.param.OrderParam;
 import com.rc.vo.TradeEntrustOrderVo;
 
@@ -24,4 +25,10 @@ public interface EntrustOrderService extends IService<EntrustOrder>{
 
     // 数据库里面委托单的取消
     void cancelEntrustOrder(Long orderId);
+
+    // 更新委托单数据
+    void doMatch(ExchangeTrade exchangeTrade);
+
+    // 数据库里面委托单的取消
+    void cancelEntrustOrderToDb(String orderId);
 }

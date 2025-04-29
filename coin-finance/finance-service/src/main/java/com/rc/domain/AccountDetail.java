@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import java.math.BigDecimal;
 import java.util.Date;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,6 +21,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName(value = "account_detail")
+@Builder
 public class AccountDetail {
     @TableId(value = "id", type = IdType.AUTO)
     @ApiModelProperty(value="")
@@ -131,4 +133,6 @@ public class AccountDetail {
     @TableField(exist = false)
     @ApiModelProperty(value="用户真实姓名")
     private String realName;
+
+
 }

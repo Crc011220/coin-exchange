@@ -1,5 +1,7 @@
 package com.rc.rocket;
 
+import com.mysql.cj.protocol.Message;
+import com.mysql.cj.protocol.MessageSender;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.messaging.MessageChannel;
 
@@ -16,4 +18,8 @@ public interface Source {
     // 交易数据输出
     @Output("exchange-trades-out")
     MessageChannel exchangeTradesOut();
+
+    // 取消订单输出
+    @Output("exchange-trades-out")
+    MessageChannel cancelOrderOut();
 }

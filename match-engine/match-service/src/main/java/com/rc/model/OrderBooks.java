@@ -57,12 +57,16 @@ public class OrderBooks {
 
     public OrderBooks(String symbol){
         this(symbol,4,4) ;
+        this.buyTradePlate = new TradePlate(symbol, OrderDirection.BUY) ;
+        this.sellTradePlate = new TradePlate(symbol, OrderDirection.SELL) ;
     }
 
     public OrderBooks(String symbol,int coinScale,int baseCoinScale){
         this.symbol = symbol ;
         this.coinScale = coinScale ;
         this.baseCoinScale = baseCoinScale ;
+        this.buyTradePlate = new TradePlate(symbol, OrderDirection.BUY) ;
+        this.sellTradePlate = new TradePlate(symbol, OrderDirection.SELL) ;
         this.initialize();
     }
 
@@ -105,7 +109,7 @@ public class OrderBooks {
     public void addOrder(Order order) {
         TreeMap<BigDecimal, MergeOrder> limitPriceMap = getCurrentOrders(OrderDirection.getOrderDirection(order.getOrderDirection()));
 
-        MergeOrder mergeOrder = buyLimitPrice.get(order.getPrice());
+        MergeOrder mergeOrder = limitPriceMap.get(order.getPrice());
         // 注意，此处均为单线程操作，无需考虑并发问题，当为集群或多线程时， 需要添加锁/分布式锁
         if (mergeOrder == null) { // 之前不存在
             mergeOrder = new MergeOrder();
@@ -115,6 +119,7 @@ public class OrderBooks {
         // 添加到水平的订单里面
         mergeOrder.add(order);
 
+        // 添加到交易盘口里面
         if (order.getOrderDirection() == OrderDirection.BUY.getCode()) {
             buyTradePlate.add(order);
         } else {
@@ -122,6 +127,7 @@ public class OrderBooks {
         }
 
     }
+
 
     /**
      * 从交易队列里面移除
@@ -148,6 +154,7 @@ public class OrderBooks {
             limitPriceMap.remove(order.getPrice());
         }
 
+        // 添加到交易盘口里面
         if (order.getOrderDirection() == OrderDirection.BUY.getCode()) {
             buyTradePlate.remove(order);
         } else {

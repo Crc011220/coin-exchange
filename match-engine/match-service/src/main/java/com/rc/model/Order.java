@@ -84,6 +84,11 @@ public class Order implements Serializable {
     private Long cancelTime;
 
     /**
+     * 订单取消
+     */
+    private Boolean cancelOrder;
+
+    /**
      * 已经成功的水平订单
      */
     private List<OrderDetail> details;
@@ -91,5 +96,8 @@ public class Order implements Serializable {
     public boolean isCompleted() {
         return amount.compareTo(tradedAmount) <= 0;
     }
+
+
+
 }
 

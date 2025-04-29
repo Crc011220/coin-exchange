@@ -10,7 +10,7 @@ public enum OrderDirection {
     private String desc ;
 
 
-    OrderDirection(int code,String desc){
+    OrderDirection(int code, String desc){
         this.code = code ;
         this.desc = desc ;
     }

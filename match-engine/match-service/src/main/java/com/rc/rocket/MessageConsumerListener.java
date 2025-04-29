@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 import static com.rc.util.BeanUtils.entrustOrder2Order;
 
 @Service
@@ -18,9 +20,18 @@ public class MessageConsumerListener {
     private DisruptorTemplate disruptorTemplate ;
 
     @StreamListener("order-in")
-    public  void handleMessage(EntrustOrder order){
+    public void handleMessage(EntrustOrder entrustOrder){
+        Order order = null;
+        if (entrustOrder.getStatus() == 2){ //order需要取消
+            order = new Order();
+            order.setOrderId(entrustOrder.getId().toString());
+            order.setCancelOrder(true);
+            order.setCancelTime(new Date().getTime());
+        } else{
+            order = entrustOrder2Order(entrustOrder);
+        }
 
         log.info("接收到了委托单:{}",order);
-        disruptorTemplate.onData(entrustOrder2Order(order));
+        disruptorTemplate.onData(order);
     }
 }

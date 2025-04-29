@@ -1,4 +1,4 @@
-package com.rc.model;
+package com.rc.domain;
 
 import com.rc.enums.OrderDirection;
 import lombok.Data;

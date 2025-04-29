@@ -42,8 +42,19 @@ Install the following components inside your cloud server using Docker:
 - MongoDB
 - Seata
 
-> **Note**: See an example docker-compose.yaml in the project. Please ensure the necessary configuration files for RocketMQ `broker` are correctly set up. 
+> **Note**: See an example docker-compose.yaml in the project. Please ensure the necessary configuration files for RocketMQ `broker` are correctly set up.
+- Example configuration for RocketMQ broker ( example directory: '/usr/local/rocketmq/broker.conf')
 
+``` conf
+brokerClusterName = DefaultCluster
+brokerName = broker-a
+brokerId = 0
+deleteWhen = 04
+fileReservedTime = 48
+brokerRole = ASYNC_MASTER
+flushDiskType = ASYNC_FLUSH
+brokerIP1 = your external IP
+```
 
 ## Service Configuration
 
@@ -55,11 +66,77 @@ Install the following components inside your cloud server using Docker:
    - `member-service-dev.yaml`
    - `finance-service-dev.yaml`
    - `admin-service-dev.yaml`
+   - `chan-service-dev.yaml`
    
-2. **Example YAML Configuration (Placeholder)**
+2. **Example YAML Configuration**
 
 ```yaml
-# Example (to be completed)
+server:
+   port: 8080
+spring:
+   datasource:
+      url: jdbc:mysql://mysql-server:3306/xxx?serverTimezone=GMT%2B11
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      username: your username
+      password: your password
+   redis:
+      host: redis-server
+      port: 6380
+   cloud:
+      sentinel:
+         transport:
+            dashboard: sentinel-server:8858
+
+mybatis-plus:
+   configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+   mapper-locations: classpath:/mappers/*Mapper.xml
+jetcache:
+   statIntervalMinutes: 15
+   areaInCacheName: false
+   local:
+      default:
+         type: linkedhashmap
+         keyConvertor: fastjson
+   remote:
+      default:
+         type: redis
+         keyConvertor: fastjson
+         valueEncoder: kryo
+         valueDecoder: kryo
+         poolConfig:
+            minIdle: 5
+            maxIdle: 20
+            maxTotal: 50
+         host: ${spring.redis.host}
+         port: ${spring.redis.port}
+swagger2:
+   basePackage: com.xxx.controller
+   name: your name
+   url: your personal url
+   email: your email
+   title: xxx API 
+   description: xxx API demonstration
+   version: 1.0
+   termsOfServiceUrl: your terms of service url
+
+aws:
+   s3:
+      bucket-name: your bucket name
+      region: your aws region
+      access-key: your aws access key
+      secret-key: your aws secret key
+
+geetest:
+   geetest-id: your geetest id
+   geetest-key: your geetest key
+
+#aliyun id card api
+identify:
+   url: https://idcert.market.alicloudapi.com/idcard?idCard=%s&name=%s
+   appKey: your app key
+   appSecret: your app secret
+   appCode: your app code
 ```
 
 ## Starting the Services

@@ -19,6 +19,7 @@ spring:
         trade-plate-out: {destination: trade-plate-out, content-type: application/plain}
         completed-order-out: {destination: completed-order-out, content-type: application/plain}
         exchange-trades-out: {destination: exchange-trades-out, content-type: application/plain}
+        cancel-order-out: {destination: cancel-order-out, content-type: application/plain}
   match:
     symbols:
       BTCGCN:

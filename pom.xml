@@ -58,6 +58,7 @@
         <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>
         <csv.version>2.4.0</csv.version>
         <affinity.version>3.1.7</affinity.version>
+        <tio.version>3.5.5.v20191010-RELEASE</tio.version>
     </properties>
 
     <dependencies>
@@ -217,6 +218,11 @@
                 <scope>import</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.t-io</groupId>
+                <artifactId>tio-websocket-spring-boot-starter</artifactId>
+                <version>${tio.version}</version>
+            </dependency>
 
 
         </dependencies>

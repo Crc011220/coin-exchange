@@ -265,6 +265,124 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         return symbolAssetVo;
     }
 
+    @Override
+    public void transferBuyAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId) {
+        Account fromAccount = getCoinAccount(coinId, fromUserId);
+        if (fromAccount == null) {
+            log.error("资金划转-资金账户异常，userId:{}, coinId:{}", fromUserId, coinId);
+            throw new IllegalArgumentException("资金账户异常");
+        } else {
+            Account toAccount = getCoinAccount(toUserId, coinId);
+            if (toAccount == null) {
+                throw new IllegalArgumentException("资金账户异常");
+            } else {
+                boolean count1 = decreaseAmount(fromAccount, amount);
+                boolean count2 = addAmount(toAccount, amount);
+                if (count1 && count2) {
+                    List<AccountDetail> accountDetails = new ArrayList<>(2);
+                    AccountDetail fromAccountDetail = AccountDetail.builder()
+                            .userId(fromUserId)
+                            .coinId(coinId)
+                            .accountId(fromAccount.getId())
+                            .refAccountId(toAccount.getId())
+                            .orderId(orderId)
+                            .direction((byte) 2)
+                            .businessType(businessType)
+                            .amount(amount)
+                            .fee(BigDecimal.ZERO)
+                            .remark(businessType)
+                            .created(new Date())
+                            .build();
+                    AccountDetail toAccountDetail = AccountDetail.builder()
+                            .userId(toUserId)
+                            .coinId(coinId)
+                            .accountId(toAccount.getId())
+                            .refAccountId(fromAccount.getId())
+                            .orderId(orderId)
+                            .direction((byte) 1)
+                            .businessType(businessType)
+                            .amount(amount)
+                            .fee(BigDecimal.ZERO)
+                            .remark(businessType)
+                            .created(new Date())
+                            .build();
+                    accountDetails.add(fromAccountDetail);
+                    accountDetails.add(toAccountDetail);
+
+                    accountDetailService.saveBatch(accountDetails);
+                } else {
+                    throw new RuntimeException("资金划转失败");
+                }
+            }
+        }
+    }
+
+    private boolean addAmount(Account account, BigDecimal amount) {
+        account.setBalanceAmount(account.getBalanceAmount().add(amount));
+        return updateById(account);
+    }
+
+    private boolean decreaseAmount(Account account, BigDecimal amount) {
+        account.setBalanceAmount(account.getBalanceAmount().subtract(amount));
+        return updateById(account);
+    }
+
+
+    @Override
+    public void transferSellAmount(Long fromUserId, Long toUserId, Long coinId, BigDecimal amount, String businessType, Long orderId) {
+        Account fromAccount = getCoinAccount(coinId, fromUserId);
+        if (fromAccount == null) {
+            log.error("资金划转-资金账户异常，userId:{}, coinId:{}", fromUserId, coinId);
+            throw new IllegalArgumentException("资金账户异常");
+        } else {
+            Account toAccount = getCoinAccount(toUserId, coinId);
+            if (toAccount == null) {
+                throw new IllegalArgumentException("资金账户异常");
+            } else {
+                boolean count1 = addAmount(fromAccount, amount);
+                boolean count2 = decreaseAmount(toAccount, amount);
+                if (count1 && count2) {
+                    List<AccountDetail> accountDetails = new ArrayList<>(2);
+                    AccountDetail fromAccountDetail = AccountDetail.builder()
+                            .userId(fromUserId)
+                            .coinId(coinId)
+                            .accountId(fromAccount.getId())
+                            .refAccountId(toAccount.getId())
+                            .orderId(orderId)
+                            .direction((byte) 2)
+                            .businessType(businessType)
+                            .amount(amount)
+                            .fee(BigDecimal.ZERO)
+                            .remark(businessType)
+                            .created(new Date())
+                            .build();
+
+                    AccountDetail toAccountDetail = AccountDetail.builder()
+                            .userId(toUserId)
+                            .coinId(coinId)
+                            .accountId(toAccount.getId())
+                            .refAccountId(fromAccount.getId())
+                            .orderId(orderId)
+                            .direction((byte) 1)
+                            .businessType(businessType)
+                            .amount(amount)
+                            .fee(BigDecimal.ZERO)
+                            .remark(businessType)
+                            .created(new Date())
+                            .build();
+
+                    accountDetails.add(fromAccountDetail);
+                    accountDetails.add(toAccountDetail);
+
+                    accountDetailService.saveBatch(accountDetails);
+                } else {
+                    throw new RuntimeException("资金划转失败");
+                }
+            }
+        }
+    }
+
+
 
     // 获取当前币种的价格
     private BigDecimal getCurrentCoinPrice(Long coinId) {
