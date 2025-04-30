@@ -67,6 +67,7 @@ brokerIP1 = your external IP
    - `finance-service-dev.yaml`
    - `admin-service-dev.yaml`
    - `chan-service-dev.yaml`
+   - `task-service-dev.yaml`
    
 2. **Example YAML Configuration**
 
@@ -81,7 +82,7 @@ spring:
       password: your password
    redis:
       host: redis-server
-      port: 6380
+      port: 6379
    cloud:
       sentinel:
          transport:
